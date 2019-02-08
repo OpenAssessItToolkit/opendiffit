@@ -1,4 +1,4 @@
-#OpenDiffIt - (Work in Progress)
+# OpenDiffIt - (Work in Progress)
 
 This project will help monitor when documents (like PDFs) have been modified or new files have been added and flags them for review.
 
