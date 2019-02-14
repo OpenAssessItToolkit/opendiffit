@@ -3,7 +3,7 @@ import optparse
 
 def identify_diffs(old, new, diff):
     """identify rows with changed cells"""
-    w_csv_diff = new + '_diff.csv'
+
     with open(old, 'r', encoding='utf-8-sig') as r_csv_old, \
         open(new, 'r', encoding='utf-8-sig') as r_csv_new, \
         open(diff, 'w', encoding='utf-8-sig') as w_csv_diff:
@@ -18,29 +18,12 @@ def identify_diffs(old, new, diff):
 
         for row in reader_new:
             if row['url'] in row_index:
-                print('url in here')
-                if row['hash'] != row_index[row['url']['hash']]
-                    print('hash in here')
-
-
-        # writer.writerow(next(reader, []) + ['DIFFs'])
-
-        # for row in reader:
-        #     index = old_indices.get(row[3])
-        #     if index is not None:
-        #         message = 'FOUND in old list (row {})'.format(index)
-        #     else:
-        #         message = 'NOT FOUND in old list'
-        #     writer.writerow(row + [message])
-
-        # for row_old in reader_old:
-
-        #     for row_new in reader_new:
-        #         if row_old['url'] in row_new['url']:
-        #             print(str(row_old['url']) + ' equal ' + str(row_new['url']))
-        #         else:
-        #             print(str(row_old['url']) + ' not equal ' + str(row_new['url']))
-
+                if row_index is not None:
+                    message = 'url FOUND in old list'
+                else:
+                    message = 'url NOT FOUND in old list'
+                row['diff'] = message
+                writer.writerow(row)
 
 
 def check_headers(old,new,diff):
