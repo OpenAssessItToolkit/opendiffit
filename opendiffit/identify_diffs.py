@@ -1,9 +1,23 @@
 import csv
-import optparse
+import os
+import argparse
+
+def get_args():
+    example_text = '''
+    examples:
+
+    python opendiffit/%(identify_diffs)s --old="old-report.csv" --new="new-report.csv" --diff="diff-report.csv"
+
+    ''' % {'identify_diffs': os.path.basename(__file__)}
+
+    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('-o', '--old', help='original csv')
+    parser.add_argument('-n', '--new', help='new csv')
+    parser.add_argument('-d', '--diff', help='output csv')
+    return parser.parse_args()
 
 def identify_diffs(old, new, diff):
     """identify rows with changed cells"""
-
     with open(old, 'r', encoding='utf-8-sig') as r_csv_old, \
         open(new, 'r', encoding='utf-8-sig') as r_csv_new, \
         open(diff, 'w', encoding='utf-8-sig') as w_csv_diff:
@@ -44,15 +58,13 @@ def check_headers(old,new,diff):
 
 def main():
     """pass in arguments"""
-    opt = optparse.OptionParser()
-    opt.add_option('--old', '-o', default='old.csv')
-    opt.add_option('--new', '-n', default='new.csv')
-    opt.add_option('--diff', '-r', default='diff.csv')
+    args = get_args()
+    new = args.new
+    old = args.old
+    diff = args.diff
 
-    options, args = opt.parse_args()
-
-    if check_headers(options.old, options.new, options.diff):
-        identify_diffs(options.old, options.new, options.diff)
+    if check_headers(old, new, diff):
+        identify_diffs(old, new, diff)
     else:
         print("Check contents of csv.")
 
