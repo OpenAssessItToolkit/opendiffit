@@ -1,6 +1,20 @@
 import csv
-import optparse
+import os
+import argparse
 from remote_sha import get_remote_sha_sum
+
+
+def get_args():
+    example_text = '''
+    examples:
+
+    python opendiffit/%(add_hash)s --input-file="report.csv"
+
+    ''' % {'add_hash': os.path.basename(__file__)}
+
+    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('-i', '--input-file', help='original csv')
+    return parser.parse_args()
 
 
 def add_hash(input_file):
@@ -31,13 +45,11 @@ def check_header(input_file):
 
 def main():
     """Pass arguments, check csv validity, and add hash"""
-    opt = optparse.OptionParser()
-    opt.add_option('--input-file', '-i', default='foo_r.csv')
-    opt.add_option('--output_-ile', '-o', default='foo_w.csv')
-    options, args = opt.parse_args()
+    args = get_args()
+    new = args.input_file
 
-    if check_header(options.input_file):
-        add_hash(options.input_file)
+    if check_header(args.input_file):
+        add_hash(args.input_file)
     else:
         print("Check contents of csv.")
 
