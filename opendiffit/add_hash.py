@@ -46,10 +46,10 @@ def check_header(input_file):
 def main():
     """Pass arguments, check csv validity, and add hash"""
     args = get_args()
-    new = args.input_file
+    input_file = args.input_file
 
-    if check_header(args.input_file):
-        add_hash(args.input_file)
+    if check_header(input_file):
+        add_hash(input_file)
     else:
         print("Check contents of csv.")
 
