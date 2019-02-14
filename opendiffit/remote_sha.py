@@ -16,7 +16,7 @@ def get_remote_sha_sum(url):
             sha1.update(response)
             return sha1.hexdigest()
         else:
-            print('Skipping sha because ' + str(MAXSIZE/8192) + 'MB is a lot.')
+            print('Skipping ' +  url + ' because ' + str(MAXSIZE/819200) + 'MB is really big.')
     except requests.exceptions.HTTPError as e:
         return "Error at url %(url)s: %(error)s" % dict(url=url, error=e)
 
