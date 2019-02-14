@@ -18,12 +18,14 @@ def identify_diffs(old, new, diff):
 
         for row in reader_new:
             if row['url'] in row_index:
-                if row_index is not None:
-                    message = 'url FOUND in old list'
+                if row['hash'] == row_index[row['url']]['hash']:
+                    message = 'SAME'
                 else:
-                    message = 'url NOT FOUND in old list'
-                row['diff'] = message
-                writer.writerow(row)
+                    message = 'UPDATED'
+            else:
+                message = 'NEW'
+            row['diff'] = message
+            writer.writerow(row)
 
 
 def check_headers(old,new,diff):
