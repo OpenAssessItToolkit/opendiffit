@@ -1,7 +1,10 @@
 import csv
 import os
 import argparse
-from remote_sha import get_remote_sha_sum
+import logging
+from utils import initialize_logger
+from utils import get_remote_sha_sum
+from utils import check_header
 
 
 def get_args():
@@ -29,31 +32,19 @@ def add_hash(input_file):
         for row in reader:
             row['hash'] = get_remote_sha_sum(row['url'])
             writer.writerow(row)
-            print('Hashed')
-
-
-def check_header(input_file):
-    """Check if required column headers exist"""
-    with open(input_file, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        if 'url' in reader.fieldnames:
-            return True
-        else:
-            print("This csv is invalid or has no 'url'.")
-            return False
-
+            logging.info("Hashing...")
+    logging.info("Hashing complete.")
 
 def main():
     """Pass arguments, check csv validity, and add hash"""
     args = get_args()
     input_file = args.input_file
-
-    if check_header(input_file):
-        add_hash(input_file)
-    else:
-        print("Check contents of csv.")
-
-    print('Done adding hashes.')
+    initialize_logger('add_hash')
+    try:
+        if check_header(input_file):
+            add_hash(input_file)
+    except Exception as ex:
+        logging.error(ex)
 
 if __name__ == '__main__':
     main()

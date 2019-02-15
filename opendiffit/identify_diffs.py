@@ -1,6 +1,10 @@
 import csv
 import os
 import argparse
+import logging
+from utils import initialize_logger
+from utils import check_header
+
 
 def get_args():
     example_text = '''
@@ -40,21 +44,8 @@ def identify_diffs(old, new, diff):
                 message = 'NEW'
             row['diff'] = message
             writer.writerow(row)
+    logging.info("Created " + diff + " file.")
 
-
-def check_headers(old,new,diff):
-    """Check if required column headers exist"""
-    with open(old, 'r', encoding='utf-8-sig') as old_csv, \
-        open(new, 'r', encoding='utf-8-sig') as new_csv:
-        reader_old = csv.DictReader(old_csv, dialect='excel')
-        reader_new = csv.DictReader(new_csv, dialect='excel')
-
-        if ('url' in reader_old.fieldnames) and ('url' in reader_new.fieldnames):
-            # print("CSVs are both valid and have 'url' headers.")
-            return True
-        else:
-            # print("One or more CSVs are invalid or have no 'url' headers. utf-8-sig")
-            return False
 
 def main():
     """pass in arguments"""
@@ -62,11 +53,14 @@ def main():
     new = args.new
     old = args.old
     diff = args.diff
+    initialize_logger('add_hash')
+    try:
+        if check_header(old) and check_header(new):
+            identify_diffs(old, new, diff)
 
-    if check_headers(old, new, diff):
-        identify_diffs(old, new, diff)
-    else:
-        print("Check contents of csv.")
+    except Exception as ex:
+        logging.error(ex)
+
 
 if __name__ == '__main__':
     main()
