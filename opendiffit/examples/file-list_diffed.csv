@@ -1,0 +1,5 @@
+﻿url,count,hash,diff
+https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf,801,90ffd2359008d82298821d16b21778c5c39aec36,SAME
+https://www.w3.org/WAI/WCAG20/Techniques/working-examples/PDF20/table.pdf,601,5a14be949b469c9afe43c44a63815a55fe8037fe,UPDATED
+https://www.w3.org/2013/12/ceddl-201312.pdf,199,3b07f334d7eef94f2c418cf399c7f003a803ee5d,SAME
+https://www.adobe.com/pdf/pdfs/ISO32000-1PublicPatentLicense.pdf,123,9cd66c8ebc15bd5c1c9eeae5394a006ebeebeedf,NEW
