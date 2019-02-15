@@ -21,7 +21,7 @@ def get_args():
     return parser.parse_args()
 
 def identify_diffs(old, new, diff):
-    """identify rows with changed cells"""
+    """ Identify rows with changed cells """
     with open(old, 'r', encoding='utf-8-sig') as r_csv_old, \
         open(new, 'r', encoding='utf-8-sig') as r_csv_new, \
         open(diff, 'w', encoding='utf-8-sig') as w_csv_diff:
@@ -48,7 +48,7 @@ def identify_diffs(old, new, diff):
 
 
 def main():
-    """pass in arguments"""
+    """ Pass in arguments """
     args = get_args()
     new = args.new
     old = args.old
@@ -57,7 +57,6 @@ def main():
     try:
         if check_header(old) and check_header(new):
             identify_diffs(old, new, diff)
-
     except Exception as ex:
         logging.error(ex)
 

@@ -21,9 +21,10 @@ def get_args():
 
 
 def add_hash(input_file):
-    """Add new column with hash"""
+    """ Add new column with hash """
     output_file = input_file + '_hashed.csv'
-    with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
+    with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, \
+        open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
         fieldnames = reader.fieldnames + ['hash']
         writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
@@ -36,7 +37,7 @@ def add_hash(input_file):
     logging.info("Hashing complete.")
 
 def main():
-    """Pass arguments, check csv validity, and add hash"""
+    """ Pass arguments, check csv validity, and add hash """
     args = get_args()
     input_file = args.input_file
     initialize_logger('add_hash')

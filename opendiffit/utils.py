@@ -9,7 +9,6 @@ def initialize_logger(module):
     """ Configure logging """
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    # create console handler and set level to info
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(levelname)s - %(message)s')
@@ -18,10 +17,9 @@ def initialize_logger(module):
 
 
 def get_remote_sha_sum(url):
-    """put remote file in memory and create hash"""
+    """ Put remote file in memory and create hash """
     MAXSIZE = 26214400 # 25MB
     response = requests.get(url)
-
     try:
         response.raise_for_status()
         if len(response.content) < MAXSIZE:
@@ -36,7 +34,7 @@ def get_remote_sha_sum(url):
 
 
 def check_header(csv_file):
-    """Check if required column headers exist"""
+    """ Check if required column headers exist """
     try:
         with open(csv_file, 'r', encoding='utf-8-sig') as r_csvfile:
             reader = csv.DictReader(r_csvfile, dialect='excel')
@@ -46,6 +44,5 @@ def check_header(csv_file):
                 return False
             else:
                 return True
-
     except Exception as ex:
         logging.warning(ex)
