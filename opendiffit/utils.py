@@ -40,7 +40,7 @@ def check_header(csv_file):
             reader = csv.DictReader(r_csvfile, dialect='excel')
 
             if ('url' not in reader.fieldnames):
-                logging.info("No 'url' header exists in " + csv_file + ". Check that file is 'utf-8-sig'.")
+                logging.info("No 'url' header exists in " + csv_file + ". Check headers. Check that file is 'utf-8-sig'.")
                 return False
             else:
                 return True
