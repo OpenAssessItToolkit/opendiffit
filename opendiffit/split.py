@@ -20,21 +20,6 @@ def get_args():
     return parser.parse_args()
 
 
-def add_hash(input_file,output_file):
-    """ Add new column with hash """
-    with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, \
-        open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
-        reader = csv.DictReader(r_csvfile)
-        fieldnames = reader.fieldnames + ['hash']
-        writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for row in reader:
-            row['hash'] = get_remote_sha_sum(row['url'])
-            writer.writerow(row)
-            logging.info("Hashing...")
-    logging.info("Hashing complete.")
-
 def split(input_file,output_dir):
     """ Split csv by vhost column """
     with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile:
