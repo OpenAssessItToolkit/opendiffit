@@ -3,6 +3,7 @@ import os
 import logging
 import hashlib
 import requests
+import wget
 
 
 def initialize_logger(module):
@@ -20,6 +21,7 @@ def get_remote_sha_sum(url):
     """ Put remote file in memory and create hash """
     MAXSIZE = 26214400 # 25MB
     response = requests.get(url)
+    # TODO only process 200
     try:
         response.raise_for_status()
         if len(response.content) < MAXSIZE:
@@ -40,9 +42,19 @@ def check_header(csv_file):
             reader = csv.DictReader(r_csvfile, dialect='excel')
 
             if ('url' not in reader.fieldnames):
-                logging.info("No 'url' header exists in " + csv_file + ". Check that file is 'utf-8-sig'.")
+                logging.info("No 'url' header exists in " + csv_file + ". Check headers. Check that file is 'utf-8-sig'.")
                 return False
             else:
                 return True
     except Exception as ex:
         logging.warning(ex)
+
+def download_changed(url_link):
+    try:
+        wget.download(url_link)
+    except Exception as ex:
+        logging.info(url_link)
+        logging.info(ex)
+        return False
+
+# TODO: add util for testing if PDF is tagged
