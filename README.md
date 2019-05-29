@@ -12,13 +12,22 @@ __Step 1. Use server logs or google analytics to create a .csv (spreadsheet) fil
 
 _We also add a `count` column for number of downloads. The count can be used as a contributing factor for prioritizing certain files)._
 
-file-list.csv
+`file-list-january.csv`
 
 |url                        |count |
 |---------------------------|------|
 |https://cats.com/foo.pdf   |988   |
 |https://dogs.com/bar.pdf   |786   |
 |https://fish.com/baz.pdf   |235   |
+
+`file-list-february.csv`
+
+|url                        |count |
+|---------------------------|------|
+|https://cats.com/foo.pdf   |903   |
+|https://dogs.com/bar.pdf   |702   |
+|https://fish.com/baz.pdf   |201   |
+|https://birds.com/baz.pdf  |101   |
 
 -
 
@@ -32,9 +41,10 @@ OpenDiffIt will compare those files.
 __Step 3. Run `add_hash` on those two .csv files. It will analyze that remote file and create a unique fingerprint.__
 
 ```
-python opendiffit/add_hash.py --input-file="file-list-january.csv" --output-file="file-list-january-hashed.csv"
+python3 opendiffit/add_hash.py --input-file="file-list-january.csv" --output-file="file-list-january_hashed.csv"
 ```
-`file-list.csv_hashed.csv`
+
+Result: `file-list-january_hashed.csv`
 
 |url                        |count | hash                                    |
 |---------------------------|------|-----------------------------------------|
@@ -42,7 +52,12 @@ python opendiffit/add_hash.py --input-file="file-list-january.csv" --output-file
 |https://dogs.com/bar.pdf   |786   |c5c4459dcfa0fa37a8e77697fba5edc2c56zzzzz |
 |https://fish.com/baz.pdf   |235   |dc44e6a2f1252b3d307cec61d142e3d77e5f53fx |
 
-`file-list.csv_hashed-new.csv`
+
+```
+python3 opendiffit/add_hash.py --input-file="file-list-february.csv" --output-file="file-list-february_hashed.csv"
+```
+
+Result: `file-list-february_hashed.csv`
 
 |url                        |count | hash                                    |
 |---------------------------|------|-----------------------------------------|
@@ -56,10 +71,10 @@ python opendiffit/add_hash.py --input-file="file-list-january.csv" --output-file
 __Step 4. Run `idenfity_diffs` on those two files. It will add a column that indicates which files are the same, new, or updated since.__
 
 ```
-python opendiffit/identify_diffs.py --old="old-file-list.csv" --new="new-file-list.csv" --diff="diff-report.csv"
+python3 opendiffit/identify_diffs.py --old="file-list-january_hashed.csv" --new="file-list-january_hashed.csv" --diff="file-list_january-february_diffed.csv"
 ```
 
-`file-list.csv_hashed-diff.csv`
+Result: `file-list_january-february_diffed.csv`
 
 |url                        |count | hash                                    |diff    |
 |---------------------------|------|-----------------------------------------|--------|
@@ -76,9 +91,17 @@ __5. Then a human can use that `diff` column to review new and updated documents
 
 Testing a PDF for accessibility requires a real human to test for accessibility.
 
-
 ### Assumptions:
 
 - The existing files are accessible.
 - You want to ensure new and modified files are accessible.
 - You only want to check files that have been downloaded.
+
+
+# Other utilities
+
+If the csv includes multiple domains there is an optional `split.py` script to divide the csv files into multiple files based on domain.
+
+```
+python3 opendiffit/split.py --old="file-list-january.csv" --new="file-list-january_hashed.csv" --diff="file-list_january-february_diffed.csv"
+```
