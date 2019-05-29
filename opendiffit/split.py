@@ -2,6 +2,8 @@ import csv
 import os
 import argparse
 import logging
+import re
+from urllib.parse import urlparse
 from utils import initialize_logger
 from utils import check_header
 
@@ -27,14 +29,18 @@ def split(input_file,output_dir):
         # Category -> open file lookup
         outputs = {}
         for row in reader:
-            domain = row['vhost']
+            url = row['url']
+            parsed_uri = urlparse(url)
+            domain = '{uri.netloc}'.format(uri=parsed_uri)
+
             # Open a new file and write the header
             if domain not in outputs:
-                w_csvfile = open(output_dir + '/' + '{}.csv'.format(domain), 'w', encoding='utf-8-sig')
+                location = output_dir + '{}_only.csv'.format(re.sub('[^A-Za-z0-9]+', '', domain))
+                w_csvfile = open(location, 'w', encoding='utf-8-sig')
                 writer = csv.DictWriter(w_csvfile, fieldnames=reader.fieldnames)
                 writer.writeheader()
                 outputs[domain] = w_csvfile, writer
-                logging.info("Saved split csv files into " + output_dir + '/' + '{}.csv'.format(domain))
+                logging.info("Saved split csv files into " + location)
             # Always write the row
             outputs[domain][1].writerow(row)
 
