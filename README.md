@@ -53,8 +53,6 @@ Result: `file-list-january_hashed.csv`
 |https://fish.com/baz.pdf   |235   |dc44e6a2f1252b3d307cec61d142e3d77e5f53fx |
 
 
-`file-list-february_hashed.csv`
-
 ```
 python3 opendiffit/add_hash.py --input-file="file-list-february.csv" --output-file="file-list-february_hashed.csv"
 ```
