@@ -8,9 +8,19 @@ This project will help monitor when documents (like PDFs) have been added or mod
 
 ### Prerequisite assets:
 
-__Step 1. Use server logs or google analytics to create a .csv (spreadsheet) file. It should contain a column with a `url` header with the location of those files.__
+__Step 1. Get some data to create a .csv (spreadsheet) file. It should contain a column with a `url` header with the location of those files.__
 
-_We also add a `count` column for number of downloads. The count can be used as a contributing factor for prioritizing certain files)._
+You can get this data from:
+
+a. Google analytics to create a CSV.
+
+b. Parse Server logs and create a CSV.
+
+c. Crawl the website with [OpenFindIt](https://github.com/OpenAssessItToolkit/openfindit) via Scrapy. This will also generate a CSV for you.
+
+The only requirement is that there is a column with a `url` header to indicate the location of those files.
+
+_In the example below we add a `count` column for number of downloads. The count can be used as a contributing factor for prioritizing certain files)._
 
 `file-list-january.csv`
 
