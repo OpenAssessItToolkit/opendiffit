@@ -31,9 +31,12 @@ def add_hash(input_file,output_file):
         writer.writeheader()
 
         for row in reader:
-            row['hash'] = get_remote_sha_sum(row['url'])
-            writer.writerow(row)
-            logging.info("Hashing...")
+            try:
+                row['hash'] = get_remote_sha_sum(row['url'])
+                writer.writerow(row)
+                logging.info("Hashing...")
+            except Exception as ex:
+                logging.error(ex)
     logging.info("Hashing complete.")
 
 def main():

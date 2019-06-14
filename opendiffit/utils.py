@@ -32,7 +32,7 @@ def get_remote_sha_sum(url):
         else:
             logging.info('Skipping ' +  url + ' because ' + str(MAXSIZE/819200) + 'MB is really big.')
     except requests.exceptions.HTTPError as e:
-        return "Error at url %(url)s: %(error)s" % dict(url=url, error=e)
+        return "%(error)s:" % dict(error=e)
 
 
 def check_header(csv_file):
@@ -43,6 +43,9 @@ def check_header(csv_file):
 
             if ('url' not in reader.fieldnames):
                 logging.info("No 'url' header exists in " + csv_file + ". Check headers. Check that file is 'utf-8-sig'.")
+                return False
+            elif ('hash' not in reader.fieldnames):
+                logging.info("No 'hash' header exists in " + csv_file + ". Check headers. Hash is necessary to test if a file with the same name has changed, and needs review.")
                 return False
             else:
                 return True
