@@ -17,7 +17,7 @@ def get_args():
     parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-o', '--old', help='original csv')
     parser.add_argument('-n', '--new', help='new csv')
-    parser.add_argument('-d', '--diff', help='output csv')
+    parser.add_argument('-d', '--diff', help='output csv. use "-" to default the output file name to input-file__diff.csv')
     return parser.parse_args()
 
 def identify_diffs(old, new, diff):
@@ -53,6 +53,8 @@ def main():
     new = args.new
     old = args.old
     diff = args.diff
+    if diff == "-":
+        diff = new.replace('.csv','') + '__diff.csv'
     initialize_logger('add_hash')
     try:
         if check_header(old) and check_header(new):
