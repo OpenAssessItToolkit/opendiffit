@@ -5,7 +5,6 @@ import logging
 from utils import initialize_logger
 from utils import get_remote_sha_sum
 from utils import check_header
-from utils import detect_tags
 
 
 
@@ -13,7 +12,7 @@ def get_args():
     example_text = '''
     examples:
 
-    python opendiffit/%(add_hash)s --input-file="report.csv"
+    python opendiffit/%(add_hash)s --input-file="report.csv" --output-file="report_hashed.csv"
 
     ''' % {'add_hash': os.path.basename(__file__)}
 
@@ -46,11 +45,12 @@ def main():
     args = get_args()
     input_file = args.input_file
     output_file = args.output_file
+    output_dir = os.path.dirname(args.input_file)
     if output_file == "-":
         output_file = input_file.replace('.csv','') + '__hashed.csv'
-    initialize_logger('add_hash')
+    initialize_logger('add_hash', output_dir)
     try:
-        if check_header(input_file,'url'):
+        if check_header(input_file,['url']):
             add_hash(input_file,output_file)
     except Exception as ex:
         logging.error(ex)

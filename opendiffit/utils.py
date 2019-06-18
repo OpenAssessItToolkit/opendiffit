@@ -6,15 +6,20 @@ import requests
 import wget
 
 
-def initialize_logger(module):
+def initialize_logger(module, output_dir):
     """ Configure logging """
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
+    # create console handler and set level to info
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    # create debug file handler and set level to debug
+    # handler = logging.FileHandler(os.path.join(output_dir, 'log-' + module + '.log'),'w')
+    # handler.setFormatter(formatter)
+    # logger.addHandler(handler)
 
 
 def get_remote_sha_sum(url):
