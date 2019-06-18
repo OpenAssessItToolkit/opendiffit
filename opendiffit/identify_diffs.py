@@ -57,7 +57,7 @@ def main():
         diff = new.replace('.csv','') + '__diff.csv'
     initialize_logger('add_hash')
     try:
-        if check_header(old) and check_header(new):
+        if check_header(old,['url','hash']) and check_header(new,['url','hash']):
             identify_diffs(old, new, diff)
     except Exception as ex:
         logging.error(ex)

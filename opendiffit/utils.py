@@ -30,25 +30,22 @@ def get_remote_sha_sum(url):
             sha1.update(response)
             return sha1.hexdigest()
         else:
-            logging.info('Skipping ' +  url + ' because ' + str(MAXSIZE/819200) + 'MB is really big.')
+            logging.info('Skipping %s because  %s MB is really big.' % (url, str(MAXSIZE/819200)))
     except requests.exceptions.HTTPError as e:
         return "%(error)s:" % dict(error=e)
 
 
-def check_header(csv_file):
+def check_header(csv_file, headers):
     """ Check if required column headers exist """
     try:
         with open(csv_file, 'r', encoding='utf-8-sig') as r_csvfile:
             reader = csv.DictReader(r_csvfile, dialect='excel')
+            for header in headers:
+                if header not in reader.fieldnames:
+                    logging.info("A '%s' column is required to compare files. Check headers in %s and ensure that file is 'utf-8-sig." % (header, csv_file))
+                else:
+                    continue
 
-            if ('url' not in reader.fieldnames):
-                logging.info("No 'url' header exists in " + csv_file + ". Check headers. Check that file is 'utf-8-sig'.")
-                return False
-            elif ('hash' not in reader.fieldnames):
-                logging.info("No 'hash' header exists in " + csv_file + ". Check headers. Hash is necessary to test if a file with the same name has changed, and needs review.")
-                return False
-            else:
-                return True
     except Exception as ex:
         logging.warning(ex)
 

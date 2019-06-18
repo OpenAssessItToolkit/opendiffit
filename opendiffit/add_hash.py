@@ -5,6 +5,8 @@ import logging
 from utils import initialize_logger
 from utils import get_remote_sha_sum
 from utils import check_header
+from utils import detect_tags
+
 
 
 def get_args():
@@ -48,7 +50,7 @@ def main():
         output_file = input_file.replace('.csv','') + '__hashed.csv'
     initialize_logger('add_hash')
     try:
-        if check_header(input_file,):
+        if check_header(input_file,'url'):
             add_hash(input_file,output_file)
     except Exception as ex:
         logging.error(ex)
