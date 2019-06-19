@@ -12,12 +12,14 @@ def get_args():
 
     python opendiffit/%(identify_diffs)s --old="old-report.csv" --new="new-report.csv" --diff="diff-report.csv"
 
+    python opendiffit/%(identify_diffs)s --old="old-report.csv" --new="new-report.csv" --diff="-"
+
     ''' % {'identify_diffs': os.path.basename(__file__)}
 
     parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-o', '--old', help='original csv')
     parser.add_argument('-n', '--new', help='new csv')
-    parser.add_argument('-d', '--diff', help='output csv')
+    parser.add_argument('-d', '--diff', help='output csv. use "-" to default the output file name to input-file__diff.csv')
     return parser.parse_args()
 
 def identify_diffs(old, new, diff):
@@ -53,9 +55,12 @@ def main():
     new = args.new
     old = args.old
     diff = args.diff
-    initialize_logger('add_hash')
+    output_dir = os.path.dirname(args.new)
+    if diff == "-":
+        diff = new.replace('.csv','') + '__diff.csv'
+    initialize_logger('identify_diffs', output_dir)
     try:
-        if check_header(old) and check_header(new):
+        if check_header(old,['url','hash']) and check_header(new,['url','hash']):
             identify_diffs(old, new, diff)
     except Exception as ex:
         logging.error(ex)

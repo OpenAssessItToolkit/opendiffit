@@ -6,15 +6,20 @@ import requests
 import wget
 
 
-def initialize_logger(module):
+def initialize_logger(module, output_dir):
     """ Configure logging """
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
+    # create console handler and set level to info
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    # create debug file handler and set level to debug
+    # handler = logging.FileHandler(os.path.join(output_dir, 'log-' + module + '.log'),'w')
+    # handler.setFormatter(formatter)
+    # logger.addHandler(handler)
 
 
 def get_remote_sha_sum(url):
@@ -30,22 +35,22 @@ def get_remote_sha_sum(url):
             sha1.update(response)
             return sha1.hexdigest()
         else:
-            logging.info('Skipping ' +  url + ' because ' + str(MAXSIZE/819200) + 'MB is really big.')
+            logging.info('Skipping %s because  %s MB is really big.' % (url, str(MAXSIZE/819200)))
     except requests.exceptions.HTTPError as e:
-        return "Error at url %(url)s: %(error)s" % dict(url=url, error=e)
+        return "%(error)s:" % dict(error=e)
 
 
-def check_header(csv_file):
+def check_header(csv_file, headers):
     """ Check if required column headers exist """
     try:
         with open(csv_file, 'r', encoding='utf-8-sig') as r_csvfile:
             reader = csv.DictReader(r_csvfile, dialect='excel')
+            for header in headers:
+                if header not in reader.fieldnames:
+                    logging.info("A '%s' column is required to compare files. Check headers in %s and ensure that file is 'utf-8-sig." % (header, csv_file))
+                else:
+                    return True
 
-            if ('url' not in reader.fieldnames):
-                logging.info("No 'url' header exists in " + csv_file + ". Check headers. Check that file is 'utf-8-sig'.")
-                return False
-            else:
-                return True
     except Exception as ex:
         logging.warning(ex)
 
