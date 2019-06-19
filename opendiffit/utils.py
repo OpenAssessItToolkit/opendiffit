@@ -40,17 +40,28 @@ def get_remote_sha_sum(url):
         return "%(error)s:" % dict(error=e)
 
 
-def check_header(csv_file, headers):
+def check_header(csv_file, good_headers, bad_headers):
     """ Check if required column headers exist """
     try:
         with open(csv_file, 'r', encoding='utf-8-sig') as r_csvfile:
             reader = csv.DictReader(r_csvfile, dialect='excel')
-            for header in headers:
-                if header not in reader.fieldnames:
-                    logging.info("A '%s' column is required to compare files. Check headers in %s and ensure that file is 'utf-8-sig." % (header, csv_file))
+
+            for bad_header in bad_headers:
+                if bad_header in reader.fieldnames:
+                    logging.warning("A '%s' column is already here. Check headers in this file and ensure that file is 'utf-8-sig." % (bad_header))
+                    raise SystemExit
+                else:
+                    continue
+
+            for good_header in good_headers:
+                if good_header not in reader.fieldnames:
+                    print('not')
+                    logging.warning("A '%s' column is required to compare files. Check headers this file and ensure that file is 'utf-8-sig." % (good_header))
+                    raise SystemExit
                 else:
                     return True
-
+    except TypeError as ex:
+        logging.warning("Something might be wrong with the headers in this file. %s" % (ex))
     except Exception as ex:
         logging.warning(ex)
 

@@ -2,6 +2,7 @@ import csv
 import os
 import argparse
 import logging
+import tempfile
 from utils import initialize_logger
 from utils import get_remote_sha_sum
 from utils import check_header
@@ -18,7 +19,7 @@ def get_args():
 
     parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-i', '--input-file', help='original csv')
-    parser.add_argument('-o', '--output-file', help='hashed version of csv. use "-" to default the output file name to input-file__hashed.csv')
+    parser.add_argument('-o', '--output-file', help='hashed version of csv. Use "-" overwrite the current file, if you have a backup.')
     return parser.parse_args()
 
 
@@ -46,12 +47,16 @@ def main():
     input_file = args.input_file
     output_file = args.output_file
     output_dir = os.path.dirname(args.input_file)
-    if output_file == "-":
-        output_file = input_file.replace('.csv','') + '__hashed.csv'
     initialize_logger('add_hash', output_dir)
+    if output_file == "-":
+        logging.info('I hope you have a backup, just in case.')
+        output_file = tempfile.gettempdir() + 'tmp.csv'
     try:
-        if check_header(input_file,['url']):
+        if check_header(input_file,['url'],['hash']):
             add_hash(input_file,output_file)
+            os.remove(input_file)
+            os.rename(output_file, input_file)
+
     except Exception as ex:
         logging.error(ex)
 
