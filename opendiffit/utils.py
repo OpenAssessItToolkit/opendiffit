@@ -49,7 +49,7 @@ def check_header(csv_file, headers):
                 if header not in reader.fieldnames:
                     logging.info("A '%s' column is required to compare files. Check headers in %s and ensure that file is 'utf-8-sig." % (header, csv_file))
                 else:
-                    continue
+                    return True
 
     except Exception as ex:
         logging.warning(ex)
