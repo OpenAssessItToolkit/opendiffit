@@ -39,14 +39,16 @@ def identify_diffs(old, new, diff):
         for row in reader_new:
             if row['url'] in row_index:
                 if row['hash'] == row_index[row['url']]['hash']:
-                    message = 'SAME'
+                    row['diff'] = 'SAME'
+                    row['comply'] = row_index[row['url']]['comply'] # carry over compliance value from prev report
                 else:
-                    message = 'UPDATED'
+                    row['diff'] = 'UPDATED'
+                    row['comply'] = 'UNKNOWN'
             else:
-                message = 'NEW'
-            row['diff'] = message
+                row['diff'] = 'NEW'
+                row['comply'] = 'UNKNOWN'
             writer.writerow(row)
-    logging.info("Created " + diff + " file.")
+    logging.info("Created %s file." % (diff))
 
 
 def main():
@@ -60,7 +62,7 @@ def main():
         diff = new.replace('.csv','') + '__diff.csv'
     initialize_logger('identify_diffs', output_dir)
     try:
-        if check_header(old,['url','hash'],['diff']) and check_header(new,['url','hash'],['diff']):
+        if check_header(old,['url','hash','comply'],['diff']) and check_header(new,['url','hash','comply'],['diff']):
             identify_diffs(old, new, diff)
     except Exception as ex:
         logging.error(ex)

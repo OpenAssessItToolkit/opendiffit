@@ -48,22 +48,18 @@ def check_header(csv_file, good_headers, bad_headers):
 
             for bad_header in bad_headers:
                 if bad_header in reader.fieldnames:
-                    logging.warning("A '%s' column is already here. Check headers in this file and ensure that file is 'utf-8-sig." % (bad_header))
-                    raise SystemExit
+                    logging.warning("A '%s' column is already here. Check headers in %s file." % (bad_header, csv_file))
                 else:
-                    continue
+                    return True
 
             for good_header in good_headers:
                 if good_header not in reader.fieldnames:
-                    print('not')
-                    logging.warning("A '%s' column is required to compare files. Check headers this file and ensure that file is 'utf-8-sig." % (good_header))
-                    raise SystemExit
+                    logging.warning("A '%s' column is required to compare files. Check headers in %s file and ensure that file is 'utf-8-sig." % (good_header, csv_file))
                 else:
                     return True
-    except TypeError as ex:
-        logging.warning("Something might be wrong with the headers in this file. %s" % (ex))
+
     except Exception as ex:
-        logging.warning(ex)
+        logging.error(ex)
 
 def download_changed(url_link):
     try:
