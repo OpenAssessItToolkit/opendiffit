@@ -27,10 +27,14 @@ def identify_diffs(old, new, diff):
     with open(old, 'r', encoding='utf-8-sig') as r_csv_old, \
         open(new, 'r', encoding='utf-8-sig') as r_csv_new, \
         open(diff, 'w', encoding='utf-8-sig') as w_csv_diff:
-
         reader_old = csv.DictReader(r_csv_old)
         reader_new = csv.DictReader(r_csv_new)
-        fieldnames = reader_new.fieldnames + ['diff']
+        fieldnames = reader_new.fieldnames
+        if 'diff' not in reader_new.fieldnames:
+            fieldnames = reader_new.fieldnames + ['diff']
+        if 'comply' not in reader_new.fieldnames:
+            fieldnames = reader_new.fieldnames + ['comply']
+
         writer = csv.DictWriter(w_csv_diff, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -62,7 +66,7 @@ def main():
         diff = new.replace('.csv','') + '__diff.csv'
     initialize_logger('identify_diffs', output_dir)
     try:
-        if check_header(old,['url','hash','comply'],['diff']) and check_header(new,['url','hash','comply'],['diff']):
+        if check_header(old,['url','hash'],['diff']) and check_header(new,['url','hash'],['diff']):
             identify_diffs(old, new, diff)
     except Exception as ex:
         logging.error(ex)

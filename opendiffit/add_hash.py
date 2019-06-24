@@ -28,7 +28,7 @@ def add_hash(input_file,output_file):
     with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, \
         open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
-        fieldnames = reader.fieldnames + ['hash']
+        fieldnames = reader.fieldnames + ['hash','comply']
         writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
