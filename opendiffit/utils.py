@@ -61,6 +61,23 @@ def check_header(csv_file, good_headers, bad_headers):
     except Exception as ex:
         logging.error(ex)
 
+
+def yes_or_no(question):
+    answer = input(question + "(y/n): ").lower().strip()
+    print("")
+    while not(answer == "y" or answer == "yes" or \
+    answer == "n" or answer == "no"):
+        print("Input yes or no")
+        answer = input(question + "(y/n):").lower().strip()
+        print("")
+    if answer[0] == "y":
+        return True
+    else:
+        raise SystemExit
+        print("Exiting")
+        return False
+
+
 def download_changed(url_link):
     try:
         wget.download(url_link)
