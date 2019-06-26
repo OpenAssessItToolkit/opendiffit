@@ -3,6 +3,7 @@ import os
 import argparse
 import logging
 import tempfile
+from utils import yes_or_no
 from utils import initialize_logger
 from utils import get_remote_sha_sum
 from utils import check_header
@@ -19,7 +20,7 @@ def get_args():
 
     parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-i', '--input-file', help='original csv')
-    parser.add_argument('-o', '--output-file', help='hashed version of csv. Use "-" overwrite the current file, if you have a backup.')
+    parser.add_argument('-o', '--output-file', help='hashed version of csv. Use "-" overwrite the current file (keep a backup).')
     return parser.parse_args()
 
 
@@ -49,7 +50,7 @@ def main():
     output_dir = os.path.dirname(args.input_file)
     initialize_logger('add_hash', output_dir)
     if output_file == "-":
-        logging.info('I hope you have a backup, just in case.')
+        # yes_or_no("Are you sure you want to add hashes to the '%s' file? (keeping a backup is recommended)" % (input_file))
         output_file = tempfile.gettempdir() + 'tmp.csv'
     try:
         if check_header(input_file,['url'],['hash']):

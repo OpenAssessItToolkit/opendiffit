@@ -2,6 +2,8 @@ import csv
 import os
 import argparse
 import logging
+import tempfile
+from utils import yes_or_no
 from utils import initialize_logger
 from utils import check_header
 
@@ -19,7 +21,7 @@ def get_args():
     parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-o', '--old', help='original csv')
     parser.add_argument('-n', '--new', help='new csv')
-    parser.add_argument('-d', '--diff', help='output csv. use "-" to default the output file name to input-file__diff.csv')
+    parser.add_argument('-d', '--diff', help='output csv. use "-" add columns to the existing new csv file (keep a backup).')
     return parser.parse_args()
 
 def identify_diffs(old, new, diff):
@@ -42,9 +44,11 @@ def identify_diffs(old, new, diff):
 
         for row in reader_new:
             if row['url'] in row_index:
+                row['comply'] = 'UNKNOWN'
                 if row['hash'] == row_index[row['url']]['hash']:
                     row['diff'] = 'SAME'
                     row['comply'] = row_index[row['url']]['comply'] # carry over compliance value from prev report
+
                 else:
                     row['diff'] = 'UPDATED'
                     row['comply'] = 'UNKNOWN'
@@ -52,7 +56,7 @@ def identify_diffs(old, new, diff):
                 row['diff'] = 'NEW'
                 row['comply'] = 'UNKNOWN'
             writer.writerow(row)
-    logging.info("Created %s file." % (diff))
+    # logging.info("Created %s file." % (diff))
 
 
 def main():
@@ -62,14 +66,20 @@ def main():
     old = args.old
     diff = args.diff
     output_dir = os.path.dirname(args.new)
-    if diff == "-":
-        diff = new.replace('.csv','') + '__diff.csv'
     initialize_logger('identify_diffs', output_dir)
-    try:
-        if check_header(old,['url','hash'],['diff']) and check_header(new,['url','hash'],['diff']):
+
+    if check_header(old,['url','hash','comply'],[]) and check_header(new,['url','hash','comply'],['diff']):
+        try:
             identify_diffs(old, new, diff)
-    except Exception as ex:
-        logging.error(ex)
+            if diff == "-":
+                # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
+                os.remove(new)
+                os.rename(diff, new)
+                logging.info("Updated '%s' file with diff" % (new))
+            else:
+                logging.info("Created new '%s' file with diff" % (new))
+        except Exception as ex:
+            logging.error(ex)
 
 
 if __name__ == '__main__':
