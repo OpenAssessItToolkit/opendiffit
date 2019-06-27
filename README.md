@@ -2,8 +2,35 @@
 
 This project will help monitor when documents (like PDFs) have been added or modified on your server and flags them for review.
 
+## Overview:
 
-## Example usage:
+OpenDiffIt can be used with [OpenFindIt](https://github.com/OpenAssessItToolkit/openfindit) to monitor documents like PDF files that are uploaded to your website. The following is an idea on how they can be used together.
+
+https://youtu.be/OSf31NBB2aE
+
+## OpenDiffIt demo:
+
+This is an overview of OpenDiffIt functionality.
+
+https://youtu.be/ASHlojGrKzs
+
+# Using OpenDiffIt:
+
+__Prerequisites:__
+
+1. [Start up a virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+
+2. Install requirements:
+
+```bash
+pip install -r requirements.txt
+```
+
+Change directories into the OpenFindIt folder
+
+```bash
+cd opendiffit
+```
 
 
 ### Prerequisite assets:
