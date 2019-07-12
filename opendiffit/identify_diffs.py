@@ -37,10 +37,11 @@ def identify_diffs(old, new, diff):
         reader_new = csv.DictReader(r_csv_new)
         fieldnames = reader_new.fieldnames
         if 'diff' not in reader_new.fieldnames:
-            fieldnames = reader_new.fieldnames + ['diff']
-        if 'comply' not in reader_new.fieldnames:
-            fieldnames = reader_new.fieldnames + ['comply']
-
+            fieldnames = fieldnames + ['diff']
+        if 'comply' not in fieldnames:
+            fieldnames = fieldnames + ['comply']
+        if 'notes' not in fieldnames:
+            fieldnames = fieldnames + ['notes']
         writer = csv.DictWriter(w_csv_diff, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -48,82 +49,23 @@ def identify_diffs(old, new, diff):
 
         for row in reader_new:
             if row['url'] in row_index:
-                row['comply'] = 'UNKNOWN'
+
                 if row['hash'] == row_index[row['url']]['hash']:
                     row['diff'] = 'SAME'
                     row['comply'] = row_index[row['url']]['comply'] # carry over compliance value from prev report
-
+                    row['notes'] = row_index[row['url']]['notes']
                 else:
                     row['diff'] = 'UPDATED'
                     row['comply'] = 'UNKNOWN'
+                    row['notes'] = row_index[row['url']]['notes']
             else:
                 row['diff'] = 'NEW'
                 row['comply'] = 'UNKNOWN'
             if row['comply'] == '':
                 row['comply'] = '.'
+
             writer.writerow(row)
     # logging.info("Created %s file." % (diff))
-
-# def csv_to_xlsx(csv_file):
-#     """ Convert csv to xlsx with formating """
-#     # if we read f.csv we will write f.xlsx
-#     wb = xlsxwriter.Workbook(csv_file[:-4] + '.xlsx')
-#     ws = wb.add_worksheet("WS1")    # your worksheet title here
-#     # ws.insert_textbox('B2', 'Edit using Online Excel in Box!', {'width': 256, 'height': 100})
-#     ws.insert_textbox('G1', 'Only edit using Online Excel in Box!',
-#                          {'width': 250,
-#                           'height': 30,
-#                           'y_offset': 25,
-#                           'x_offset': 25,
-#                           'font': {'bold': True,
-#                                    'color': 'red'
-#                                     },
-#                           'align': {'vertical': 'middle',
-#                                     'horizontal': 'center'
-#                                     },
-#                           'line': {'color': 'red',
-#                                    'width': 1.25,
-#                                    'dash_type': 'square_dot'}
-#                                    })
-
-#     formatyellow = wb.add_format({'bg_color':'#FFD960'})
-#     formatpink = wb.add_format({'bg_color':'#ffc0cb'})
-#     formatgreen = wb.add_format({'bg_color':'#ccff80'})
-
-#     with open(csv_file,'r') as csvfile:
-#         """ Convert csv to xlsx with formating """
-#         table = csv.reader(csvfile)
-#         i = 0
-#         # write each row from the csv file as text into the excel file
-#         # this may be adjusted to use 'excel types' explicitly (see xlsxwriter doc)
-#         for row in table:
-#             ws.write_row(i, 0, row)
-#             i += 1
-#         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-#                       'criteria':'=INDIRECT("e"&ROW())="UNKNOWN"',
-#                       'format':formatyellow})
-#         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-#                       'criteria':'=INDIRECT("e"&ROW())="NO"',
-#                       'format':formatpink})
-#         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-#                       'criteria':'=INDIRECT("e"&ROW())="YES"',
-#                       'format':formatgreen})
-#         ws.set_column(0, 0, 75)
-#         ws.set_column(1, 1, 25)
-#         ws.freeze_panes(1, 0)
-#     logging.info('Converted csv to pretty xlsx')
-#     wb.close()
-
-# def xlsx_to_csv(xlsx_file):
-#     """ Convert xlsx to csv """
-#     csv_file = xlsx_file[:-5] + '.csv'
-#     with xlrd.open_workbook(xlsx_file) as wb:
-#         sh = wb.sheet_by_index(0)
-#         with open(csv_file, 'w', encoding='utf-8-sig') as r_csv_new:
-#             writer = csv.writer(r_csv_new)
-#             for r in range(sh.nrows):
-#                 writer.writerow(sh.row_values(r))
-#     logging.info('Converted pretty xlsx to plain csv')
 
 
 def main():
@@ -135,9 +77,6 @@ def main():
     output_dir = os.path.dirname(args.new)
     initialize_logger('identify_diffs', output_dir)
 
-    # if new.lower().endswith('.xlsx'):
-    #     convert_spreadsheet(spreadsheet)
-
 
     if check_header(old,['url','hash','comply'],[]) and check_header(new,['url','hash','comply'],['diff']):
         try:
@@ -147,11 +86,8 @@ def main():
                 os.remove(new)
                 os.rename(diff, new)
                 logging.info("Updated '%s' file with diff" % (new))
-                # convert_spreadsheet(new)
             else:
-                logging.info("Created new '%s' file with diff" % (new))
-                # convert_spreadsheet(diff)
-            # logging.info("Made an Excel copy of '%s' file with diff" % (diff))
+                logging.info("Created new '%s' file with diff" % (diff))
 
         except Exception as ex:
             logging.error(ex)
