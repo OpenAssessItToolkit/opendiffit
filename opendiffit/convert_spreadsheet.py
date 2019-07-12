@@ -96,7 +96,7 @@ def main():
     args = get_args()
     spreadsheet = args.spreadsheet
     output_dir = os.path.dirname(args.spreadsheet)
-    # initialize_logger('convert_spreadsheet', output_dir)
+    initialize_logger('convert_spreadsheet', output_dir)
 
     try:
         convert_spreadsheet(spreadsheet)
