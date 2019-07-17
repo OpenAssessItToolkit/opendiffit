@@ -37,7 +37,7 @@ def add_hash(input_file,output_file):
             try:
                 row['hash'] = get_remote_sha_sum(row['url'])
                 writer.writerow(row)
-                logging.info("Hashing...")
+                logging.info("Hashing... " + row['hash'])
             except Exception as ex:
                 logging.error(ex)
     logging.info("Hashing complete.")

@@ -14,6 +14,11 @@ import wget
 import os
 
 
+from urllib.parse import unquote
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+
 def get_args():
     example_text = '''
     examples:
@@ -40,66 +45,72 @@ def detect_tags(input_file, output_file):
         try:
             for row in reader:
 
-                # if row['diff'] != 'SAME' and row['url'].lower().endswith('.pdf'):
+                clean_url = unquote(row['url'])
+                logging.info(clean_url)
+
                 if row['diff'] != 'SAME':
 
-                    logging.info("It is not the SAME. Try to detect tags.")
+                    if clean_url.endswith('.pdf'):
 
-                    rsrcmgr = PDFResourceManager()
-                    retstr = BytesIO()
+                        logging.info("Document is a PDF.")
+                        logging.info("Document is not the SAME. Try to detect tags.")
+                        rsrcmgr = PDFResourceManager()
+                        retstr = BytesIO()
 
-                    try:
                         try:
-                            device = TagExtractor(rsrcmgr, retstr, codec='utf-8')
-                        except:
-                            logging.info('Not utf-8.')
+                            try:
+                                device = TagExtractor(rsrcmgr, retstr, codec='utf-8')
+                            except:
+                                logging.info('Not utf-8.')
+                            try:
+                                device = TagExtractor(rsrcmgr, retstr, codec='ascii')
+                            except:
+                                logging.info('Not ascii.')
+                        except Exception as ex:
+                            logging.error(ex)
+
                         try:
-                            device = TagExtractor(rsrcmgr, retstr, codec='ascii')
-                        except:
-                            logging.info('Not ascii.')
-                    except Exception as ex:
-                        logging.error(ex)
+                            # Download the file
+                            the_file_data = wget.download(clean_url)
 
-                    try:
-                        # Download the file
-                        the_file_data = wget.download(row['url'])
-
-                        # Get the file name
-                        the_file_name = row['url'].rsplit('/', 1)[-1]
+                            # Get the file name
+                            the_file_name = clean_url.rsplit('/', 1)[-1]
 
 
-                        fp = open(the_file_name, 'rb')
-                        interpreter = PDFPageInterpreter(rsrcmgr, device)
-                        maxpages = 1
-                        password = ''
-                        caching = True
-                        pagenos=set()
-                        for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True):
-                            interpreter.process_page(page)
+                            fp = open(the_file_name, 'rb')
+                            interpreter = PDFPageInterpreter(rsrcmgr, device)
+                            maxpages = 3
+                            password = ''
+                            caching = True
+                            pagenos=set()
+                            for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True):
+                                interpreter.process_page(page)
 
-                        contents = retstr.getvalue().decode()
+                            contents = retstr.getvalue().decode()
+                            fp.close()
+                            device.close()
+                            retstr.close()
 
-                        fp.close()
-                        device.close()
-                        retstr.close()
+                            # check if common proprietary Acrobat tags are in the response
+                            tags = ["<b\'Part\'", "</b\'Sect\'", "</b\'Art\'", "<b\'Content'", "<b\'Index'", "<b\'BibEntry'", "<b\'Lbl'", "<b\'Lbody'", "<b\'Index'", "<b\'Note'", "<b\'Reference'", "<b\'Span'", "<b\'P'", "<b\'Figure'", "<b\'Artifact\'", "\'Annots'"]
+                            for tag in tags:
+                                if tag not in contents:
+                                    row['comply'] = 'NOT'
+                                    # return False
+                                else:
+                                    logging.info("Found tag %s" % (tag))
+                                    row['comply'] = 'MAYBE'
+                                    # os.remove(the_file_name)
+                                    break
+                                    # return True
 
-                        # check if common proprietary Acrobat tags are in the response
-                        tags = ["<b\'Part\'", "</b\'Sect\'", "</b\'Art\'", "<b'Content'", "<b\'Artifact\'"]
-                        for tag in tags:
-                            if tag not in contents:
-                                row['comply'] = 'NO'
-                                # return False
-                            else:
-                                logging.info("Found tag %s" % (tag))
-                                row['comply'] = 'MAYBE'
-                                break
-                                # return True
-
-                    except Exception as ex:
-                        logging.error(ex)
+                        except Exception as ex:
+                            logging.error(ex)
+                    else:
+                        logging.info("Document is not PDF. Skip it.")
 
                 else:
-                    logging.info("It is the SAME. Skip it.")
+                    logging.info("Document is the SAME. Skip it.")
 
                 writer.writerow(row)
         except Exception as ex:
@@ -115,9 +126,10 @@ def main():
     output_dir = os.path.dirname(args.input_file)
     initialize_logger('detect_tags', output_dir)
 
-    if check_header(input_file,['url','comply'],[]):
+    if check_header(input_file,['url','comply','diff'],[]):
 
         try:
+            detect_tags(input_file,output_file)
             if output_file == "-":
                 # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
                 os.remove(input_file)
@@ -125,7 +137,6 @@ def main():
                 logging.info("Updated '%s' comply column " % (input_file))
             else:
                 logging.info("Created new '%s' file with updated comply column" % (output_file))
-            detect_tags(input_file,output_file)
 
         except Exception as ex:
             logging.error(ex)

@@ -27,7 +27,7 @@ def convert_spreadsheet(spreadsheet):
     elif spreadsheet.lower().endswith('.csv'):
         csv_to_xlsx(spreadsheet)
     else:
-        print('WUT?')
+        logging.error(spreadsheet.lower() + 'That is not a spreadsheet extention.')
 
 def csv_to_xlsx(csv_file):
     """ Convert csv to xlsx with formating """
@@ -72,6 +72,9 @@ def csv_to_xlsx(csv_file):
                       'format':formatpink})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
                       'criteria':'=INDIRECT("e"&ROW())="YES"',
+                      'format':formatgreen})
+        ws.conditional_format('A1:XFD1048576', {'type':'formula',
+                      'criteria':'=INDIRECT("e"&ROW())="SKIP"',
                       'format':formatgreen})
         ws.set_column(0, 0, 75)
         ws.set_column(1, 1, 25)
