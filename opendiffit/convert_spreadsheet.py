@@ -68,6 +68,12 @@ def csv_to_xlsx(csv_file):
                       'criteria':'=INDIRECT("e"&ROW())="UNKNOWN"',
                       'format':formatyellow})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
+                      'criteria':'=INDIRECT("e"&ROW())="MAYBE"',
+                      'format':formatyellow})
+        ws.conditional_format('A1:XFD1048576', {'type':'formula',
+                      'criteria':'=INDIRECT("e"&ROW())="ALMOST"',
+                      'format':formatyellow})
+        ws.conditional_format('A1:XFD1048576', {'type':'formula',
                       'criteria':'=INDIRECT("e"&ROW())="NO"',
                       'format':formatpink})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',

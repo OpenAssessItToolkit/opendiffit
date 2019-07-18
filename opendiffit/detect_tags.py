@@ -6,6 +6,7 @@ from io import BytesIO
 from utils import initialize_logger
 from utils import check_header
 
+import tempfile
 import csv
 import argparse
 import logging
@@ -46,13 +47,13 @@ def detect_tags(input_file, output_file):
             for row in reader:
 
                 clean_url = unquote(row['url'])
-                logging.info(clean_url)
 
-                if row['diff'] != 'SAME':
+                if clean_url.endswith('.pdf'):
 
-                    if clean_url.endswith('.pdf'):
+                    logging.info("Document is a PDF.")
 
-                        logging.info("Document is a PDF.")
+                    if row['diff'] != 'SAME' and row['diff'] != 'SKIP' and row['comply'] != 'YES':
+
                         logging.info("Document is not the SAME. Try to detect tags.")
                         rsrcmgr = PDFResourceManager()
                         retstr = BytesIO()
@@ -70,16 +71,23 @@ def detect_tags(input_file, output_file):
                             logging.error(ex)
 
                         try:
-                            # Download the file
-                            the_file_data = wget.download(clean_url)
-
                             # Get the file name
-                            the_file_name = clean_url.rsplit('/', 1)[-1]
+                            file_name = clean_url.rsplit('/', 1)[-1]
+                            temp_download_file_location = tempfile.gettempdir() + '/' + file_name
+
+                            print(temp_download_file_location)
+                            if os.path.exists(temp_download_file_location):
+                                # Download the file
+                                logging.info("File exist already. Use me.")
+
+                            else:
+                                the_file_data = wget.download(clean_url, temp_download_file_location)
+                                logging.info("File does not exist. Download...")
 
 
-                            fp = open(the_file_name, 'rb')
+                            fp = open(temp_download_file_location, 'rb')
                             interpreter = PDFPageInterpreter(rsrcmgr, device)
-                            maxpages = 3
+                            maxpages = 2
                             password = ''
                             caching = True
                             pagenos=set()
@@ -87,36 +95,41 @@ def detect_tags(input_file, output_file):
                                 interpreter.process_page(page)
 
                             contents = retstr.getvalue().decode()
+                            print(contents)
                             fp.close()
                             device.close()
                             retstr.close()
 
                             # check if common proprietary Acrobat tags are in the response
-                            tags = ["<b\'Part\'", "</b\'Sect\'", "</b\'Art\'", "<b\'Content'", "<b\'Index'", "<b\'BibEntry'", "<b\'Lbl'", "<b\'Lbody'", "<b\'Index'", "<b\'Note'", "<b\'Reference'", "<b\'Span'", "<b\'P'", "<b\'Figure'", "<b\'Artifact\'", "\'Annots'"]
+                            tags = ["<b\'Heading 1\'", "<b\'Heading 2\'", "<b\'Part\'", "<b\'Sect\'", "<b\'Art\'", "<b\'Content\'", "<b\'Index\'", "<b\'BibEntry'", "<b\'Lbl\'", "<b\'Index\'", "<b\'Note\'", "<b\'Reference\'", "<b\'Span\'", "<b\'P\'", "<b\'Figure\'", "<b\'Artifact\'", "<b\'ArtifactSpan\'", "<b\'LBody\'", "<b\'Normal\'", "\'Annots\'"]
                             for tag in tags:
-                                if tag not in contents:
-                                    row['comply'] = 'NOT'
-                                    # return False
-                                else:
+                                logging.info("Found tag %s" % (tag))
+                                if "<b\'Heading 1\'" in contents or "<b\'Heading 2\'" in contents:
                                     logging.info("Found tag %s" % (tag))
                                     row['comply'] = 'MAYBE'
-                                    # os.remove(the_file_name)
+                                    row['notes'] = ' Is Tagged. Has a Heading Tag.'
                                     break
-                                    # return True
+                                elif tag in contents:
+                                    logging.info("Found tag %s" % (tag))
+                                    row['comply'] = 'MAYBE'
+                                    row['notes'] = ' Is Tagged. But needs a Heading Tag'
+                                    break
+                                else:
+                                    row['comply'] = 'NO'
+                                    row['notes'] = 'Not Tagged.'
 
                         except Exception as ex:
                             logging.error(ex)
                     else:
-                        logging.info("Document is not PDF. Skip it.")
+                       logging.info("Document is the 'SAME'. Skip it.")
 
                 else:
-                    logging.info("Document is the SAME. Skip it.")
+                    logging.info("Document is not PDF. Skip it.")
 
                 writer.writerow(row)
         except Exception as ex:
             logging.error(ex)
 
-    # os.remove(the_file_name)
 
 def main():
     """ Pass in arguments """
@@ -134,9 +147,9 @@ def main():
                 # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
                 os.remove(input_file)
                 os.rename(output_file, input_file)
-                logging.info("Updated '%s' comply column " % (input_file))
+                logging.info("Updated '%s' 'comply' column " % (input_file))
             else:
-                logging.info("Created new '%s' file with updated comply column" % (output_file))
+                logging.info("Created new '%s' file with updated 'comply' column" % (output_file))
 
         except Exception as ex:
             logging.error(ex)
