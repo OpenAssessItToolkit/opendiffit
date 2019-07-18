@@ -53,13 +53,17 @@ def check_header(csv_file, good_headers, bad_headers):
                         logging.warning("A '%s' column is already in %s." % (bad_header, csv_file))
                         yes_or_no("There is already a '%s' column in '%s'. Are you sure you want to run it again? Seems weird." % (bad_header, csv_file))
                     else:
-                        return True
+                        logging.info("Good. A '%s' column does NOT exists." % (bad_header))
+                    return True
+
 
                 for good_header in good_headers:
                     if good_header not in reader.fieldnames:
                         logging.warning("A '%s' column is required to compare files. Check headers in '%s' file and ensure that file is 'utf-8-sig." % (good_header, csv_file))
                     else:
-                        return True
+                        logging.info("Good. A '%s' column exists." % (good_header))
+                    return True
+
 
         except Exception as ex:
             logging.error(ex)
@@ -88,5 +92,6 @@ def download_changed(url_link):
         logging.info(url_link)
         logging.info(ex)
         return False
+
 
 # TODO: add util for testing if PDF is tagged
