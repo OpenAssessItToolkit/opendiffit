@@ -2,6 +2,8 @@
 
 This project will help monitor when documents (like PDFs) have been added or modified on your server and flags them for review.
 
+_Breaking News! Check out the work on the develop branch. We are adding basic tag and primitive compliance detection so we can automatically mark PDFs that we know are junk._
+
 ## Overview:
 
 OpenDiffIt can be used with [OpenFindIt](https://github.com/OpenAssessItToolkit/openfindit) to monitor documents like PDF files that are uploaded to your website. The following is an idea on how they can be used together.
