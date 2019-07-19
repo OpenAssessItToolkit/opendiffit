@@ -33,6 +33,8 @@ def get_args():
     parser.add_argument('-o', '--output-file', help='comply version of csv. Use "-" overwrite the current file (keep a backup).')
     return parser.parse_args()
 
+# Acrobat tags to sniff for
+tags = ["<b\'Part", "<b\'Sect", "<b\'Art", "<b\'Content", "<b\'Index", "<b\'BibEntry", "<b\'Lbl", "<b\'Index", "<b\'Note", "<b\'Reference", "<b\'Figure", "<b\'Artifact", "<b\'ArtifactSpan", "<b\'LBody", "<b\'Normal", "<b\'Heading 1", "<b\'Heading 2", "<b\'H1", "<b\'H2", "<b\'Table","<b\'Span", "<b\'P", "\'Annots"]
 
 def detect_tags(input_file, output_file):
     """ Identify PDFs that are tagged """
@@ -40,6 +42,8 @@ def detect_tags(input_file, output_file):
         open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
         fieldnames = reader.fieldnames
+        if 'notes' not in fieldnames:
+            fieldnames = fieldnames + ['notes']
         writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -95,28 +99,17 @@ def detect_tags(input_file, output_file):
                                 interpreter.process_page(page)
 
                             contents = retstr.getvalue().decode()
-                            print(contents)
+                            logging.info(contents)
                             fp.close()
                             device.close()
                             retstr.close()
 
-                            # check if common proprietary Acrobat tags are in the response
-                            tags = ["<b\'Heading 1\'", "<b\'Heading 2\'", "<b\'Part\'", "<b\'Sect\'", "<b\'Art\'", "<b\'Content\'", "<b\'Index\'", "<b\'BibEntry'", "<b\'Lbl\'", "<b\'Index\'", "<b\'Note\'", "<b\'Reference\'", "<b\'Span\'", "<b\'P\'", "<b\'Figure\'", "<b\'Artifact\'", "<b\'ArtifactSpan\'", "<b\'LBody\'", "<b\'Normal\'", "\'Annots\'"]
-                            for tag in tags:
-                                logging.info("Found tag %s" % (tag))
-                                if "<b\'Heading 1\'" in contents or "<b\'Heading 2\'" in contents:
-                                    logging.info("Found tag %s" % (tag))
-                                    row['comply'] = 'MAYBE'
-                                    row['notes'] = ' Is Tagged. Has a Heading Tag.'
-                                    break
-                                elif tag in contents:
-                                    logging.info("Found tag %s" % (tag))
-                                    row['comply'] = 'MAYBE'
-                                    row['notes'] = ' Is Tagged. But needs a Heading Tag'
-                                    break
-                                else:
-                                    row['comply'] = 'NO'
-                                    row['notes'] = 'Not Tagged.'
+                            if any(item in contents for item in tags):
+                                print('i found one')
+                                label_comply(row,contents)
+                            else:
+                                row['comply'] = 'NO'
+                                row['notes'] = 'Probably not tagged.'
 
                         except Exception as ex:
                             logging.error(ex)
@@ -125,10 +118,38 @@ def detect_tags(input_file, output_file):
 
                 else:
                     logging.info("Document is not PDF. Skip it.")
+                    row['comply'] = 'MAYBE'
+                    row['notes'] = 'Word doc.'
 
                 writer.writerow(row)
         except Exception as ex:
             logging.error(ex)
+
+def label_comply(row,contents):
+    """examine the contents of the file"""
+    msg = "Is Tagged. "
+
+    if "<b'Heading 1" or "<b'Heading 2" or "<b'H1" or "<b'H2" in contents:
+        msg = msg + " And has a Heading Tag."
+        logging.info(msg)
+        row['comply'] = 'MAYBE'
+        row['notes'] = msg
+
+    else:
+        msg = msg + " But needs a Heading Tag."
+        logging.info(msg)
+        row['comply'] = 'MAYBE'
+        row['notes'] = msg
+
+    if ("<b'Table" and not "<b'TH") in contents:
+        msg = msg + " But has a Table with problems."
+        logging.info(msg)
+        row['comply'] = 'MAYBE'
+        row['notes'] = msg
+
+    if "_____" in contents:
+        msg = msg + " Probably a Form to Inspect."
+        row['notes'] = msg
 
 
 def main():
