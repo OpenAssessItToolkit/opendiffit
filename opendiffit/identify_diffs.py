@@ -70,13 +70,17 @@ def identify_diffs(old, new, diff):
                     if row['hash'] == row_index[row['url']]['hash']:
                         row['diff'] = 'SAME'
                         row['comply'] = row_index[row['url']]['comply'] # carry over compliance value from prev report
-                        row['notes'] = row_index[row['url']]['notes']
-                        row['owns'] = row_index[row['url']]['owns']
+                        if row_index[row['url']]['notes']:
+                            row['notes'] = row_index[row['url']]['notes']
+                        if row_index[row['url']]['owns']:
+                            row['owns'] = row_index[row['url']]['owns']
                     else:
                         row['diff'] = 'UPDATED'
                         row['comply'] = 'UNKNOWN'
-                        row['notes'] = row_index[row['url']]['notes']
-                        row['owns'] = row_index[row['url']]['owns']
+                        if row_index[row['url']]['notes']:
+                            row['notes'] = row_index[row['url']]['notes']
+                        if row_index[row['url']]['owns']:
+                            row['owns'] = row_index[row['url']]['owns']
 
                 else:
                     row['diff'] = 'NEW'
