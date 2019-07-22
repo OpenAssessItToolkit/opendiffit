@@ -56,23 +56,18 @@ def detect_tags(input_file, output_file):
 
                     logging.info("Document is a PDF.")
 
-                    if row['diff'] != 'SAME' and row['diff'] != 'SKIP' and row['comply'] != 'YES':
+                    # if row['diff'] != 'SAME' and row['diff'] != 'SKIP' and row['comply'] != 'YES':
+                    if row['diff'] != 'SAME' and row['diff'] != 'SKIP':
 
                         logging.info("Document is not the SAME. Try to detect tags.")
                         rsrcmgr = PDFResourceManager()
                         retstr = BytesIO()
 
+                        # except as probaboly unicode
                         try:
-                            try:
-                                device = TagExtractor(rsrcmgr, retstr, codec='utf-8')
-                            except:
-                                logging.info('Not utf-8.')
-                            try:
-                                device = TagExtractor(rsrcmgr, retstr, codec='ascii')
-                            except:
-                                logging.info('Not ascii.')
-                        except Exception as ex:
-                            logging.error(ex)
+                            device = TagExtractor(rsrcmgr, retstr, codec='utf-8')
+                        except UnicodeError as ex:
+                            device = TagExtractor(rsrcmgr, retstr, codec='ascii')
 
                         try:
                             # Get the file name
@@ -88,21 +83,19 @@ def detect_tags(input_file, output_file):
                                 the_file_data = wget.download(clean_url, temp_download_file_location)
                                 logging.info("File does not exist. Download...")
 
+                            with open(temp_download_file_location, 'rb') as fp:
+                                interpreter = PDFPageInterpreter(rsrcmgr, device)
+                                maxpages = 2
+                                password = ''
+                                caching = True
+                                pagenos=set()
+                                for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True):
+                                    interpreter.process_page(page)
 
-                            fp = open(temp_download_file_location, 'rb')
-                            interpreter = PDFPageInterpreter(rsrcmgr, device)
-                            maxpages = 2
-                            password = ''
-                            caching = True
-                            pagenos=set()
-                            for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True):
-                                interpreter.process_page(page)
-
-                            contents = retstr.getvalue().decode()
-                            logging.info(contents)
-                            fp.close()
-                            device.close()
-                            retstr.close()
+                                contents = retstr.getvalue().decode()
+                                logging.info(contents)
+                                device.close() # check if these need to be here still context manager stuff
+                                retstr.close() # check if these need to be here still
 
                             if any(item in contents for item in tags):
                                 print('i found one')
@@ -129,7 +122,7 @@ def label_comply(row,contents):
     """examine the contents of the file"""
     msg = "Is Tagged. "
 
-    if "<b'Heading 1" or "<b'Heading 2" or "<b'H1" or "<b'H2" in contents:
+    if ("<b'Heading 1" in contents) or ("<b'Heading 2" in contents) or ("<b'H1" in contents) or ("<b'H2" in contents):
         msg = msg + " And has a Heading Tag."
         logging.info(msg)
         row['comply'] = 'MAYBE'
@@ -141,7 +134,7 @@ def label_comply(row,contents):
         row['comply'] = 'MAYBE'
         row['notes'] = msg
 
-    if ("<b'Table" and not "<b'TH") in contents:
+    if ("<b'Table" in contents) and ("<b'TH" not in contents):
         msg = msg + " But has a Table with problems."
         logging.info(msg)
         row['comply'] = 'MAYBE'
