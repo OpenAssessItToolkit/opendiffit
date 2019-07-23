@@ -74,18 +74,34 @@ def detect_tags(input_file, output_file):
                             file_name = clean_url.rsplit('/', 1)[-1]
                             temp_download_file_location = tempfile.gettempdir() + '/' + file_name
 
-                            print(temp_download_file_location)
+
                             if os.path.exists(temp_download_file_location):
                                 # Download the file
-                                logging.info("File exist already. Use me.")
+                                logging.info(file_name + "File exist already. Use me.")
 
                             else:
                                 the_file_data = wget.download(clean_url, temp_download_file_location)
-                                logging.info("File does not exist. Download...")
+                                logging.info(file_name + "File does not exist. Download...")
 
                             with open(temp_download_file_location, 'rb') as fp:
+                                fp_size = os.path.getsize(temp_download_file_location)
+
+                                MAXSIZE = 1048576 # 10MB
+
+                                if fp_size < MAXSIZE/4:
+                                    maxpages = 4
+                                    print('It is less than 2.5 MB. Max detect 4 pages.')
+                                elif fp_size < MAXSIZE/2:
+                                    maxpages = 3
+                                    print('It is less than 5 MB. Max detect 3 pages.')
+                                elif fp_size < MAXSIZE:
+                                    maxpages = 2
+                                    print('It is less than 10 MB. Max detect 2 page.')
+                                else:
+                                    maxpages = 1
+                                    print('It is greater than 10 MB. Max detect 1 page.')
+
                                 interpreter = PDFPageInterpreter(rsrcmgr, device)
-                                maxpages = 2
                                 password = ''
                                 caching = True
                                 pagenos=set()
