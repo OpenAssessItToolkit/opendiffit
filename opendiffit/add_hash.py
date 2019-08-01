@@ -15,12 +15,15 @@ def get_args():
     examples:
 
     python opendiffit/%(add_hash)s --input-file="report.csv" --output-file="report_hashed.csv"
+    python opendiffit/%(add_hash)s --config="my-config-file.yml"
 
     ''' % {'add_hash': os.path.basename(__file__)}
 
-    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-i', '--input-file', help='original csv')
-    parser.add_argument('-o', '--output-file', help='hashed version of csv. Use "-" overwrite the current file (keep a backup).')
+    # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser = configargparse.get_argument_parser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--config', help='your config file')
+    parser.add_argument('--input-file', help='original csv')
+    parser.add_argument('--output-file', help='hashed version of csv. Use "-" overwrite the current file (keep a backup).')
     return parser.parse_args()
 
 

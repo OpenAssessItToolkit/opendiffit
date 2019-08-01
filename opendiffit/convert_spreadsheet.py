@@ -6,6 +6,7 @@ from utils import initialize_logger
 import xlsxwriter
 import xlrd
 import sys
+import configargparse
 
 
 def get_args():
@@ -14,11 +15,15 @@ def get_args():
 
     python opendiffit/%(convert_spreadsheet)s --spreadsheet="some file"
 
+    python opendiffit/%(convert_spreadsheet)s --config="my-config-file.yml"
+
 
     ''' % {'convert_spreadsheet': os.path.basename(__file__)}
 
-    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-s', '--spreadsheet', help='spreadsheet file')
+    # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser = configargparse.get_argument_parser(formatter_class=argparse.RawTextHelpFormatter)
+    parser.add('--config', is_config_file=True, help='config file path')
+    parser.add_argument('--spreadsheet', help='spreadsheet file')
     return parser.parse_args()
 
 def convert_spreadsheet(spreadsheet):
@@ -82,6 +87,7 @@ def csv_to_xlsx(csv_file):
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
                       'criteria':'=INDIRECT("e"&ROW())="SKIP"',
                       'format':formatgreen})
+
         ws.set_column(0, 0, 75)
         ws.set_column(1, 1, 25)
         ws.freeze_panes(1, 0)

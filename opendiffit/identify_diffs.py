@@ -19,12 +19,16 @@ def get_args():
 
     python opendiffit/%(identify_diffs)s --old="old-report.csv" --new="new-report.csv" --diff="-"
 
+    python opendiffit/%(identify_diffs)s --config="my-config-file.yml"
+
     ''' % {'identify_diffs': os.path.basename(__file__)}
 
-    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-o', '--old', help='original csv')
-    parser.add_argument('-n', '--new', help='new csv')
-    parser.add_argument('-d', '--diff', help='output csv. use "-" add columns to the existing new csv file (keep a backup).')
+    # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser = configargparse.get_argument_parser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--config', help='your config file')
+    parser.add_argument('--old', help='original csv')
+    parser.add_argument('--new', help='new csv')
+    parser.add_argument('--diff', help='output csv. use "-" add columns to the existing new csv file (keep a backup).')
     return parser.parse_args()
 
 
