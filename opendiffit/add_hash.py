@@ -54,7 +54,7 @@ def main():
     initialize_logger('add_hash', output_dir)
     if output_file == "-":
         # yes_or_no("Are you sure you want to add hashes to the '%s' file? (keeping a backup is recommended)" % (input_file))
-        output_file = tempfile.gettempdir() + 'tmp.csv'
+        output_file = os.path.join(tempfile.gettempdir(), os.path.basename(input_file)))
     try:
         if check_header(input_file,['url'],['hash']):
             add_hash(input_file,output_file)
