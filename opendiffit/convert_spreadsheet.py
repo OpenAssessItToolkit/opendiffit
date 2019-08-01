@@ -60,7 +60,8 @@ def csv_to_xlsx(csv_file):
     formatpink = wb.add_format({'bg_color':'#ffc0cb'})
     formatgreen = wb.add_format({'bg_color':'#ccff80'})
 
-    with open(csv_file,'r') as csvfile:
+    # TODO: Do something with goofy character issues other than ignore errors
+    with open(csv_file,'r', encoding='utf-8', errors='ignore') as csvfile:
         """ Convert csv to xlsx with formating """
         table = csv.reader(csvfile)
         i = 0
