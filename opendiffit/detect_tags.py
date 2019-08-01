@@ -13,6 +13,10 @@ import logging
 import requests
 import wget
 import os
+import configargparse
+
+from pathlib import Path
+
 
 
 from urllib.parse import unquote
@@ -26,19 +30,25 @@ def get_args():
 
     python opendiffit/%(detect_tags)s --input-file="input.csv" --output-file="input_with_comply.csv"
 
+    python opendiffit/%(detect_tags)s --config="your-config-file.yml"
+
     ''' % {'detect_tags': os.path.basename(__file__)}
 
-    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-i', '--input-file', help='original csv')
-    parser.add_argument('-o', '--output-file', help='comply version of csv. Use "-" overwrite the current file (keep a backup).')
+    # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser = configargparse.get_argument_parser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add('--config', is_config_file=True, help='config file path')
+    parser.add_argument('--input-file', help='original csv')
+    parser.add_argument('--output-file', help='comply version of csv. Use "-" overwrite the current file (keep a backup).')
     return parser.parse_args()
 
 # Acrobat tags to sniff for
 tags = ["<b\'Part", "<b\'Sect", "<b\'Art", "<b\'Content", "<b\'Index", "<b\'BibEntry", "<b\'Lbl", "<b\'Index", "<b\'Note", "<b\'Reference", "<b\'Figure", "<b\'Artifact", "<b\'ArtifactSpan", "<b\'LBody", "<b\'Normal", "<b\'Heading 1", "<b\'Heading 2", "<b\'H1", "<b\'H2", "<b\'Table","<b\'Span", "<b\'P", "\'Annots"]
 
+# python generator function
+
 def detect_tags(input_file, output_file):
     """ Identify PDFs that are tagged """
-    with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, \
+    with open(input_file, 'r', encoding='utf-8-sig', errors='ignore') as r_csvfile, \
         open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
         fieldnames = reader.fieldnames
@@ -57,7 +67,7 @@ def detect_tags(input_file, output_file):
                     logging.info("Document is a PDF.")
 
                     # if row['diff'] != 'SAME' and row['diff'] != 'SKIP' and row['comply'] != 'YES':
-                    if row['diff'] != 'SAME' and row['diff'] != 'SKIP':
+                    if row['diff'] != 'SAME' and row['diff'] != 'SKIP' and row['comply'] != 'DUPE':
 
                         logging.info("Document is not the SAME. Try to detect tags.")
                         rsrcmgr = PDFResourceManager()
@@ -88,37 +98,41 @@ def detect_tags(input_file, output_file):
 
                                 MAXSIZE = 1048576 # 10MB
 
-                                if fp_size < MAXSIZE/4:
-                                    maxpages = 4
-                                    print('It is less than 2.5 MB. Max detect 4 pages.')
-                                elif fp_size < MAXSIZE/2:
-                                    maxpages = 3
-                                    print('It is less than 5 MB. Max detect 3 pages.')
-                                elif fp_size < MAXSIZE:
-                                    maxpages = 2
-                                    print('It is less than 10 MB. Max detect 2 page.')
+                                if fp_size < MAXSIZE:
+                                    logging.info('File is less than 20 MB. Try to detect.')
+
+                                    if (fp_size < MAXSIZE / 2):
+                                        maxpages = 2
+                                    elif (fp_size < MAXSIZE / 4):
+                                        maxpages = 4
+                                    elif (fp_size < MAXSIZE / 8):
+                                        maxpages = 8
+                                    else:
+                                        maxpages = 1
+
+                                    interpreter = PDFPageInterpreter(rsrcmgr, device)
+                                    password = ''
+                                    caching = True
+                                    pagenos=set()
+                                    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True):
+                                        interpreter.process_page(page)
+
+                                    contents = retstr.getvalue().decode()
+                                    logging.info(contents)
+                                    device.close() # check if these need to be here still context manager stuff
+                                    retstr.close() # check if these need to be here still
+
+                                    if any(item in contents for item in tags):
+                                        print('i found one')
+                                        label_comply(row,contents)
+                                    else:
+                                        row['comply'] = 'NO'
+                                        row['notes'] = 'Probably not tagged.'
+
                                 else:
-                                    maxpages = 1
-                                    print('It is greater than 10 MB. Max detect 1 page.')
-
-                                interpreter = PDFPageInterpreter(rsrcmgr, device)
-                                password = ''
-                                caching = True
-                                pagenos=set()
-                                for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password, caching=caching, check_extractable=True):
-                                    interpreter.process_page(page)
-
-                                contents = retstr.getvalue().decode()
-                                logging.info(contents)
-                                device.close() # check if these need to be here still context manager stuff
-                                retstr.close() # check if these need to be here still
-
-                            if any(item in contents for item in tags):
-                                print('i found one')
-                                label_comply(row,contents)
-                            else:
-                                row['comply'] = 'NO'
-                                row['notes'] = 'Probably not tagged.'
+                                    row['comply'] = 'IDK'
+                                    row['notes'] = 'Too big to scan.'
+                                    logging.info('Too big to scan. It is greater than 10 MB.')
 
                         except Exception as ex:
                             logging.error(ex)
@@ -145,19 +159,25 @@ def label_comply(row,contents):
         row['notes'] = msg
 
     else:
-        msg = msg + " But needs a Heading Tag."
+        msg = msg + " But needs a Heading Tag. Other issues possible."
         logging.info(msg)
-        row['comply'] = 'MAYBE'
+        row['comply'] = 'NO'
         row['notes'] = msg
 
     if ("<b'Table" in contents) and ("<b'TH" not in contents):
-        msg = msg + " But has a Table with problems."
+        msg = msg + " At least one Table is missing TH."
         logging.info(msg)
-        row['comply'] = 'MAYBE'
+        row['comply'] = 'NO'
         row['notes'] = msg
 
     if "_____" in contents:
-        msg = msg + " Probably a Form to Inspect."
+        msg = msg + " Probably a Form with issues."
+        row['comply'] = 'NO'
+        row['notes'] = msg
+
+    if "....." in contents:
+        msg = msg + " Probably has a table of contents with issues."
+        row['comply'] = 'NO'
         row['notes'] = msg
 
 
@@ -167,7 +187,7 @@ def main():
     input_file = args.input_file
     output_file = args.output_file
     output_dir = os.path.dirname(args.input_file)
-    initialize_logger('detect_tags', output_dir)
+    # initialize_logger('detect_tags', output_dir)
 
     if check_header(input_file,['url','comply','diff'],[]):
 
@@ -175,7 +195,8 @@ def main():
             detect_tags(input_file,output_file)
             if output_file == "-":
                 # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
-                os.remove(input_file)
+                # os.remove(input_file)
+                os.rename(input_file, os.path.join(tempfile.gettempdir(), os.path.basename(input_file)))
                 os.rename(output_file, input_file)
                 logging.info("Updated '%s' 'comply' column " % (input_file))
             else:
