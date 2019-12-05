@@ -42,6 +42,7 @@ def get_remote_sha_sum(url):
 
 def check_header(csv_file, good_headers, bad_headers):
     """ Check if required column headers exist """
+
     if os.stat(csv_file).st_size > 0:
 
         try:
@@ -51,19 +52,18 @@ def check_header(csv_file, good_headers, bad_headers):
                 for bad_header in bad_headers:
                     if bad_header in reader.fieldnames:
                         logging.warning("A '%s' column is already in %s." % (bad_header, csv_file))
-                        yes_or_no("There is already a '%s' column in '%s'. Are you sure you want to run it again? Seems weird." % (bad_header, csv_file))
+                        # yes_or_no("There is already a '%s' column in '%s'. Are you sure you want to run it again? Seems weird." % (bad_header, csv_file))
+                        return False
                     else:
-                        logging.info("Good. A '%s' column does NOT exists." % (bad_header))
-                    return True
-
+                        logging.info("Good. A '%s' column does NOT exists in '%s" % (bad_header, csv_file))
 
                 for good_header in good_headers:
                     if good_header not in reader.fieldnames:
-                        logging.warning("A '%s' column is required to compare files. Check headers in '%s' file and ensure that file is 'utf-8-sig." % (good_header, csv_file))
+                        logging.error("A '%s' column is required to compare files. Check headers in '%s' file and ensure that file is 'utf-8-sig." % (good_header, csv_file))
                     else:
-                        logging.info("Good. A '%s' column exists." % (good_header))
-                    return True
+                        logging.info("Good. A '%s' column exists in '%s'." % (good_header, csv_file))
 
+            return True
 
         except Exception as ex:
             logging.error(ex)
