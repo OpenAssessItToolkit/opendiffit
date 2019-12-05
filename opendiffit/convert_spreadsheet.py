@@ -71,22 +71,22 @@ def csv_to_xlsx(csv_file):
             ws.write_row(i, 0, row)
             i += 1
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-                      'criteria':'=INDIRECT("e"&ROW())="UNKNOWN"',
+                      'criteria':'=INDIRECT("d"&ROW())="UNKNOWN"',
                       'format':formatyellow})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-                      'criteria':'=INDIRECT("e"&ROW())="MAYBE"',
+                      'criteria':'=INDIRECT("d"&ROW())="MAYBE"',
                       'format':formatyellow})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-                      'criteria':'=INDIRECT("e"&ROW())="ALMOST"',
+                      'criteria':'=INDIRECT("d"&ROW())="ALMOST"',
                       'format':formatyellow})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-                      'criteria':'=INDIRECT("e"&ROW())="NO"',
+                      'criteria':'=INDIRECT("d"&ROW())="NO"',
                       'format':formatpink})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-                      'criteria':'=INDIRECT("e"&ROW())="YES"',
+                      'criteria':'=INDIRECT("d"&ROW())="YES"',
                       'format':formatgreen})
         ws.conditional_format('A1:XFD1048576', {'type':'formula',
-                      'criteria':'=INDIRECT("e"&ROW())="SKIP"',
+                      'criteria':'=INDIRECT("d"&ROW())="SKIP"',
                       'format':formatgreen})
 
         ws.set_column(0, 0, 75)
