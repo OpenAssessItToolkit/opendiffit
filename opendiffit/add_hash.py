@@ -50,16 +50,19 @@ def main():
     args = get_args()
     input_file = args.input_file
     output_file = args.output_file
-    output_dir = os.path.dirname(args.input_file)
-    initialize_logger('add_hash', output_dir)
-    if output_file == "-":
-        # yes_or_no("Are you sure you want to add hashes to the '%s' file? (keeping a backup is recommended)" % (input_file))
-        output_file = os.path.join(tempfile.gettempdir(), os.path.basename(input_file)))
+    # output_dir = os.path.dirname(args.input_file)
+    initialize_logger('add_hash')
+
     try:
-        if check_header(input_file,['url'],['hash']):
-            add_hash(input_file,output_file)
+        add_hash(input_file,output_file)
+        if output_file == "-":
+            # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
             os.remove(input_file)
+            # os.rename(input_file, os.path.join(tempfile.gettempdir(), os.path.basename(input_file)))
             os.rename(output_file, input_file)
+            logging.info("Updated '%s' file with hash" % (input_file))
+        else:
+            logging.info("Created new '%s' file with hash" % (output_file))
 
     except Exception as ex:
         logging.error(ex)

@@ -54,7 +54,7 @@ def main():
     """ Pass arguments, check csv validity, and add hash """
     args = get_args()
     input_file = args.input_file
-    output_dir = args.output_dir
+    # output_dir = args.output_dir
     initialize_logger('add_hash')
     try:
         if check_header(input_file,):

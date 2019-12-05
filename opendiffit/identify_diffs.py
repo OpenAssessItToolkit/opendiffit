@@ -111,11 +111,11 @@ def main():
     new = args.new
     old = args.old
     diff = args.diff
-    output_dir = os.path.dirname(args.new)
-    initialize_logger('identify_diffs', output_dir)
+    # output_dir = os.path.dirname(args.new)
+    initialize_logger('identify_diffs')
 
 
-    if check_header(old,['url','hash','comply','notes'],[]) and check_header(new,['url','hash','comply','notes'],['diff']):
+    if check_header(old,['url','hash'],[]) and check_header(new,['url','hash'],[]):
         try:
             identify_diffs(old, new, diff)
             if diff == "-":

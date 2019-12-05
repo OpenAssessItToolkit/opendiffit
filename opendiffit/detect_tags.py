@@ -186,8 +186,8 @@ def main():
     args = get_args()
     input_file = args.input_file
     output_file = args.output_file
-    output_dir = os.path.dirname(args.input_file)
-    # initialize_logger('detect_tags', output_dir)
+    # output_dir = os.path.dirname(args.input_file)
+    initialize_logger('detect_tags')
 
     if check_header(input_file,['url','comply','diff'],[]):
 
