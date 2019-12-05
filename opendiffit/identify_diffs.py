@@ -35,12 +35,14 @@ def get_args():
 
 def identify_diffs(old, new, diff):
     """ Identify rows with changed cells """
+
     with open(old, 'r', encoding='utf-8-sig') as r_csv_old, \
         open(new, 'r', encoding='utf-8-sig') as r_csv_new, \
         open(diff, 'w', encoding='utf-8-sig') as w_csv_diff:
         reader_old = csv.DictReader(r_csv_old)
         reader_new = csv.DictReader(r_csv_new)
         fieldnames = reader_new.fieldnames
+        fieldnames_old = reader_old.fieldnames
         # TODO: Make this DRY and accomidate any existing column headers automatically
         if 'diff' not in reader_new.fieldnames:
             fieldnames = fieldnames + ['diff']
@@ -62,18 +64,20 @@ def identify_diffs(old, new, diff):
                 if row['url'] in row_index:
 
                     if row['hash'] == row_index[row['url']]['hash']:
+
                         row['diff'] = 'SAME'
-                        row['comply'] = row_index[row['url']]['comply'] # carry over compliance value from prev report
-                        if row_index[row['url']]['notes']:
+                        if 'comply' in fieldnames_old:
+                            row['comply'] = row_index[row['url']]['comply'] # carry over compliance value from prev report
+                        if 'notes' in fieldnames_old:
                             row['notes'] = row_index[row['url']]['notes']
-                        if row_index[row['url']]['owns']:
+                        if 'owns' in fieldnames_old:
                             row['owns'] = row_index[row['url']]['owns']
                     else:
                         row['diff'] = 'UPDATED'
                         row['comply'] = 'UNKNOWN'
-                        if row_index[row['url']]['notes']:
+                        if 'notes' in fieldnames_old:
                             row['notes'] = row_index[row['url']]['notes']
-                        if row_index[row['url']]['owns']:
+                        if 'owns' in fieldnames_old:
                             row['owns'] = row_index[row['url']]['owns']
 
                 else:
@@ -102,7 +106,8 @@ def main():
             identify_diffs(old, new, diff)
             if diff == "-":
                 # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
-                os.remove(new)
+                # os.remove(new)
+                os.rename(new, os.path.join(tempfile.gettempdir(), os.path.basename(new)))
                 os.rename(diff, new)
                 logging.info("Updated '%s' file with diff" % (new))
             else:

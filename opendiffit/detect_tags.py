@@ -48,6 +48,8 @@ def detect_tags(input_file, output_file):
         open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
         fieldnames = reader.fieldnames
+        if 'comply' not in fieldnames:
+            fieldnames = fieldnames + ['comply']
         if 'notes' not in fieldnames:
             fieldnames = fieldnames + ['notes']
         writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
