@@ -16,13 +16,9 @@ import os
 import configargparse
 
 from pathlib import Path
-
-
-
 from urllib.parse import unquote
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
 
 def get_args():
     example_text = '''

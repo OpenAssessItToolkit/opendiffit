@@ -42,32 +42,21 @@ def identify_diffs(old, new, diff):
         fieldnames = reader_new.fieldnames
         # TODO: Make this DRY and accomidate any existing column headers automatically
         if 'diff' not in reader_new.fieldnames:
-            print(fieldnames)
             fieldnames = fieldnames + ['diff']
-            print(fieldnames)
         if 'comply' not in fieldnames:
             fieldnames = fieldnames + ['comply']
-            print(fieldnames)
         if 'owns' not in fieldnames:
             fieldnames = fieldnames + ['owns']
-            print(fieldnames)
         if 'notes' not in fieldnames:
             fieldnames = fieldnames + ['notes']
-            print(fieldnames)
         if 'count' not in fieldnames:
             fieldnames = fieldnames + ['count']
-            print(fieldnames)
         writer = csv.DictWriter(w_csv_diff, fieldnames=fieldnames)
         writer.writeheader()
 
         row_index = {r['url']: r for r in reader_old}
         try:
             for row in reader_new:
-                # TODO: Support optional count column header by default
-                # if row['count'] == '':
-                #     row['count'] = row_index[row['url']]['count']
-                # else:
-                #     row['count'] = '.'
 
                 if row['url'] in row_index:
 
@@ -90,16 +79,8 @@ def identify_diffs(old, new, diff):
                     row['diff'] = 'NEW'
                     row['comply'] = 'UNKNOWN'
 
-                if row['comply'] == '':
-                    row['comply'] = '.'
-
-                # TODO: Support optional 'owns' column header by default
-                # if row['owns']:
-                #     row['owns'] = row_index[row['url']]['owns']
-                # else:
-                #     row['owns'] = '.'
-
                 writer.writerow(row)
+
         except Exception as ex:
             logging.error(ex)
     # logging.info("Created %s file." % (diff))

@@ -111,8 +111,8 @@ def main():
     """ Pass in arguments """
     args = get_args()
     spreadsheet = args.spreadsheet
-    output_dir = os.path.dirname(args.spreadsheet)
-    initialize_logger('convert_spreadsheet', output_dir)
+    # output_dir = os.path.dirname(args.spreadsheet)
+    initialize_logger('convert_spreadsheet')
 
     try:
         convert_spreadsheet(spreadsheet)
