@@ -21,7 +21,7 @@ def get_args():
 
     # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser = configargparse.get_argument_parser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--config', help='your config file')
+    parser.add_argument('--config', is_config_file=True, help='your config file')
     parser.add_argument('--input-file', help='original csv')
     parser.add_argument('--output-file', help='hashed version of csv. Use "-" overwrite the current file (keep a backup).')
     return parser.parse_args()
@@ -32,7 +32,7 @@ def add_hash(input_file,output_file):
     with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, \
         open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
-        fieldnames = reader.fieldnames + ['hash','comply']
+        fieldnames = reader.fieldnames + ['hash']
         writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
         writer.writeheader()
 

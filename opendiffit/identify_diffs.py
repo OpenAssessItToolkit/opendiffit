@@ -9,6 +9,7 @@ from utils import check_header
 import xlsxwriter
 import xlrd
 import sys
+import configargparse
 
 
 def get_args():
@@ -25,7 +26,7 @@ def get_args():
 
     # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
     parser = configargparse.get_argument_parser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--config', help='your config file')
+    parser.add_argument('--config', is_config_file=True, help='your config file')
     parser.add_argument('--old', help='original csv')
     parser.add_argument('--new', help='new csv')
     parser.add_argument('--diff', help='output csv. use "-" add columns to the existing new csv file (keep a backup).')
