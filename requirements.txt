@@ -3,3 +3,4 @@ wget==3.2
 pdfminer3==2018.12.3.0
 xlrd==1.2.0
 xlsxwriter==1.1.8
+configargparse
