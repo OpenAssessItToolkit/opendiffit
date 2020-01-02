@@ -6,20 +6,20 @@ import requests
 import wget
 
 
-def initialize_logger(module, output_dir):
+def initialize_logger(module):
     """ Configure logging """
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     # create console handler and set level to info
     handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
+    handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     # create debug file handler and set level to debug
-    handler = logging.FileHandler(os.path.join(output_dir, 'log-' + module + '.log'),'w')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    # handler = logging.FileHandler(os.path.join(output_dir, 'log-' + module + '.log'),'w')
+    # handler.setFormatter(formatter)
+    # logger.addHandler(handler)
 
 
 def get_remote_sha_sum(url):
@@ -42,6 +42,7 @@ def get_remote_sha_sum(url):
 
 def check_header(csv_file, good_headers, bad_headers):
     """ Check if required column headers exist """
+
     if os.stat(csv_file).st_size > 0:
 
         try:
@@ -51,15 +52,18 @@ def check_header(csv_file, good_headers, bad_headers):
                 for bad_header in bad_headers:
                     if bad_header in reader.fieldnames:
                         logging.warning("A '%s' column is already in %s." % (bad_header, csv_file))
-                        yes_or_no("There is already a '%s' column in '%s'. Are you sure you want to run it again? Seems weird." % (bad_header, csv_file))
+                        # yes_or_no("There is already a '%s' column in '%s'. Are you sure you want to run it again? Seems weird." % (bad_header, csv_file))
+                        return False
                     else:
-                        return True
+                        logging.info("Good. A '%s' column does NOT exists in '%s" % (bad_header, csv_file))
 
                 for good_header in good_headers:
                     if good_header not in reader.fieldnames:
-                        logging.warning("A '%s' column is required to compare files. Check headers in '%s' file and ensure that file is 'utf-8-sig." % (good_header, csv_file))
+                        logging.error("A '%s' column is required to compare files. Check headers in '%s' file and ensure that file is 'utf-8-sig." % (good_header, csv_file))
                     else:
-                        return True
+                        logging.info("Good. A '%s' column exists in '%s'." % (good_header, csv_file))
+
+            return True
 
         except Exception as ex:
             logging.error(ex)
@@ -88,5 +92,6 @@ def download_changed(url_link):
         logging.info(url_link)
         logging.info(ex)
         return False
+
 
 # TODO: add util for testing if PDF is tagged

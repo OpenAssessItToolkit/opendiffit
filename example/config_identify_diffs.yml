@@ -1,0 +1,3 @@
+new: /Users/joel/Projects/OpenAssessItToolkit/opendiffit/example/file-list-february_hashed.csv
+old: /Users/joel/Projects/OpenAssessItToolkit/opendiffit/example/file-list-january_hashed.csv
+diff: /Users/joel/Projects/OpenAssessItToolkit/opendiffit/example/file-list_january-february_diffed.csv

@@ -7,7 +7,7 @@ from utils import yes_or_no
 from utils import initialize_logger
 from utils import get_remote_sha_sum
 from utils import check_header
-
+import configargparse
 
 
 def get_args():
@@ -15,12 +15,15 @@ def get_args():
     examples:
 
     python opendiffit/%(add_hash)s --input-file="report.csv" --output-file="report_hashed.csv"
+    python opendiffit/%(add_hash)s --config="my-config-file.yml"
 
     ''' % {'add_hash': os.path.basename(__file__)}
 
-    parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-i', '--input-file', help='original csv')
-    parser.add_argument('-o', '--output-file', help='hashed version of csv. Use "-" overwrite the current file (keep a backup).')
+    # parser = argparse.ArgumentParser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser = configargparse.get_argument_parser(epilog=example_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--config', is_config_file=True, help='your config file')
+    parser.add_argument('--input-file', help='original csv')
+    parser.add_argument('--output-file', help='hashed version of csv. Use "-" overwrite the current file (keep a backup).')
     return parser.parse_args()
 
 
@@ -29,7 +32,7 @@ def add_hash(input_file,output_file):
     with open(input_file, 'r', encoding='utf-8-sig') as r_csvfile, \
         open(output_file, 'w', encoding='utf-8-sig') as w_csvfile:
         reader = csv.DictReader(r_csvfile)
-        fieldnames = reader.fieldnames + ['hash','comply']
+        fieldnames = reader.fieldnames + ['hash']
         writer = csv.DictWriter(w_csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -37,7 +40,7 @@ def add_hash(input_file,output_file):
             try:
                 row['hash'] = get_remote_sha_sum(row['url'])
                 writer.writerow(row)
-                logging.info("Hashing...")
+                logging.info("Hashing... " + row['hash'])
             except Exception as ex:
                 logging.error(ex)
     logging.info("Hashing complete.")
@@ -47,16 +50,19 @@ def main():
     args = get_args()
     input_file = args.input_file
     output_file = args.output_file
-    output_dir = os.path.dirname(args.input_file)
-    initialize_logger('add_hash', output_dir)
-    if output_file == "-":
-        # yes_or_no("Are you sure you want to add hashes to the '%s' file? (keeping a backup is recommended)" % (input_file))
-        output_file = tempfile.gettempdir() + 'tmp.csv'
+    # output_dir = os.path.dirname(args.input_file)
+    initialize_logger('add_hash')
+
     try:
-        if check_header(input_file,['url'],['hash']):
-            add_hash(input_file,output_file)
+        add_hash(input_file,output_file)
+        if output_file == "-":
+            # yes_or_no("Are you sure you want to add the data to the existing '%s' file? (keeping a backup is recommended)" % (input_file))
             os.remove(input_file)
+            # os.rename(input_file, os.path.join(tempfile.gettempdir(), os.path.basename(input_file)))
             os.rename(output_file, input_file)
+            logging.info("Updated '%s' file with hash" % (input_file))
+        else:
+            logging.info("Created new '%s' file with hash" % (output_file))
 
     except Exception as ex:
         logging.error(ex)
