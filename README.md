@@ -2,21 +2,27 @@
 
 This project will help monitor when documents (like PDFs) have been added or modified on your server and flags them for review.
 
-_Breaking News! Check out the work on the develop branch. We are adding basic tag and primitive compliance detection so we can automatically mark PDFs that we know are junk._
-
 ## Overview:
 
 OpenDiffIt can be used with [OpenFindIt](https://github.com/OpenAssessItToolkit/openfindit) to monitor documents like PDF files that are uploaded to your website. The following is an idea on how they can be used together.
 
+
+## Two methods to use OpenDiffIt
+
+### Option 1: We have added a Jupyter Notebook file with example code. 
+
+If you have Anaconda installed you can view and run this with ease. Just open `opendiffit-jupyter.ipynb` and follow the instructions.
+
+### Option 2: Run it old school from the command line.
+
+
+#### OpenDiffIt command line demo:
+
 https://youtu.be/OSf31NBB2aE
-
-## OpenDiffIt demo:
-
-This is an overview of OpenDiffIt functionality.
 
 https://youtu.be/ASHlojGrKzs
 
-# Using OpenDiffIt:
+#### Using OpenDiffIt:
 
 __Prerequisites:__
 
@@ -35,7 +41,7 @@ cd opendiffit
 ```
 
 
-### Prerequisite assets:
+#### Prerequisite assets:
 
 __Step 1. Get some data to create a .csv (spreadsheet) file. It should contain a column with a `url` header with the location of those files.__
 
