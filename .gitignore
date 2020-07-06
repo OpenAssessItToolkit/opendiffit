@@ -7,3 +7,5 @@ __pycache__/
 env
 .vscode
 tmp
+.ipynb_checkpoints/
+results
