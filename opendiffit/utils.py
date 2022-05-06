@@ -26,18 +26,24 @@ def get_remote_sha_sum(url):
     """ Put remote file in memory and create hash """
     MAXSIZE = 26214400 # 25MB
     response = requests.get(url)
-    # TODO only process 200
-    try:
-        response.raise_for_status()
-        if len(response.content) < MAXSIZE:
-            sha1 = hashlib.sha1()
-            response = response.content
-            sha1.update(response)
-            return sha1.hexdigest()
-        else:
-            logging.info('Skipping %s because  %s MB is really big.' % (url, str(MAXSIZE/819200)))
-    except requests.exceptions.HTTPError as e:
-        return "%(error)s:" % dict(error=e)
+
+    if response.status_code == 200:
+        try:
+            response.raise_for_status()
+
+            if len(response.content) < MAXSIZE:
+                sha1 = hashlib.sha1()
+                response = response.content
+                sha1.update(response)
+                return sha1.hexdigest()
+            else:
+                logging.info('Skipping %s because  %s MB is really big.' % (url, str(MAXSIZE/819200)))
+        except requests.exceptions.HTTPError as e:
+            logging.info(("%(error)s:" % dict(error=e))
+            return e
+
+    else:
+        return "Status " + str(response.status_code)
 
 
 def check_header(csv_file, good_headers, bad_headers):
