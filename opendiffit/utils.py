@@ -39,7 +39,7 @@ def get_remote_sha_sum(url):
             else:
                 logging.info('Skipping %s because  %s MB is really big.' % (url, str(MAXSIZE/819200)))
         except requests.exceptions.HTTPError as e:
-            logging.info(("%(error)s:" % dict(error=e))
+            logging.info(("%(error)s:" % dict(error=e)))
             return e
 
     else:
