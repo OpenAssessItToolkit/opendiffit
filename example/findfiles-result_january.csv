@@ -1,6 +1,6 @@
-url,link_text,from_page_url,,hash,diff,comply
-http://joelcrawfordsmith.com/openassessit/demo/assets/through-the-looking-glass.pdf,Through the Looking Glass,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,64645bd499d83d7d2b97272d30b29bf2c03d1990,SAME,NO
-http://joelcrawfordsmith.com/openassessit/demo/assets/between-childhood-and-adolescence.pdf,Alice's Vacilation between Childhood and Adolescence,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,2808d21b122d8187a1a502d84a660c66b6b39357,SAME,YES
-http://joelcrawfordsmith.com/openassessit/demo/assets/music-for-alice-in-wonderland.pdf,Music for Alice in Wonderland play,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,qqqqq5afca7ba5b2ecef4312d9487a1fabf51bc3,SAME,NO
-http://joelcrawfordsmith.com/openassessit/demo/assets/hunting-shark.pdf,The Hunting Shark,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,yyyyy5dd26a2ed8cb6c9a086ac9845cc1edd7ff53,SAME,YES
-http://joelcrawfordsmith.com/openassessit/demo/assets/phantasmagoria.pdf,Phantasmagoria,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,ea191439aeef786ca9fe946a9996b0f44e988387,SAME,YES
+count,url,link_text,from_page_url,,hash,diff,comply
+10,http://joelcrawfordsmith.com/openassessit/demo/assets/through-the-looking-glass.pdf,Through the Looking Glass,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,64645bd499d83d7d2b97272d30b29bf2c03d1990,SAME,NO
+8,http://joelcrawfordsmith.com/openassessit/demo/assets/between-childhood-and-adolescence.pdf,Alice's Vacilation between Childhood and Adolescence,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,2808d21b122d8187a1a502d84a660c66b6b39357,SAME,YES
+5,http://joelcrawfordsmith.com/openassessit/demo/assets/music-for-alice-in-wonderland.pdf,Music for Alice in Wonderland play,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,qqqqq5afca7ba5b2ecef4312d9487a1fabf51bc3,SAME,NO
+4,http://joelcrawfordsmith.com/openassessit/demo/assets/hunting-shark.pdf,The Hunting Shark,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,yyyyy5dd26a2ed8cb6c9a086ac9845cc1edd7ff53,SAME,YES
+2,http://joelcrawfordsmith.com/openassessit/demo/assets/phantasmagoria.pdf,Phantasmagoria,http://joelcrawfordsmith.com/openassessit/demo/test-pdf-links.html,,ea191439aeef786ca9fe946a9996b0f44e988387,SAME,YES
