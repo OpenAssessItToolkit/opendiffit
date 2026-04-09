@@ -13,8 +13,9 @@ OpenDiffIt can be used with [OpenFindIt](https://github.com/OpenAssessItToolkit/
 
 If you have Anaconda installed you can view and run this with ease. Just open `opendiffit-jupyter.ipynb` and follow the instructions.
 
-### Option 2: Run it old school from the command line.
+### Option 2: Run it old school from the command line (deprecated)
 
+This option is no longer maintained. The Jupyter Notebook provides better visibility into how the code is running and easier to discover problems that might get in the way of running it based on unorthodox files. Enhancements for stability and graceful handling of edge case issues have been made in the Jupyter Notebook that you will not find here running it in the command line.
 
 #### OpenDiffIt command line demo:
 
